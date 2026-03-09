@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitTrack Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* TEMEL RENKLER*/
+:root {
+  --bg: #07070d;
+  --surface: #0f0f18;
+  --card: #14141e;
+  --card2: #1a1a28;
+  --border: #252535;
+  --border2: #303048;
+  --accent: #b8f040;
+  --accent-dim: rgba(184,240,64,.12);
+  --accent2: #40c8f0;
+  --accent3: #f040a0;
+  --accent4: #f0c040;
+  --text: #e4e4f0;
+  --text2: #9898b8;
+  --muted: #5a5a78;
+  --error: #f05050;
+  --success: #50f0a0;
+  --sidebar-w: 220px;
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; min-height:100vh; overflow-x:hidden; }
+a { text-decoration:none; color:inherit; }
+button { cursor:pointer; font-family:'DM Sans',sans-serif; }
+input, select, textarea { font-family:'DM Sans',sans-serif; }
+
+/* SAYFA SİSTEMİ*/
+.page { display:none; min-height:100vh; }
+.page.active { display:block; }
+
+/* APP SHELL Yan menü + içerik yan yana */
+.app-shell { display:flex; min-height:100vh; }
+.sidebar {
+  width:var(--sidebar-w); flex-shrink:0;
+  background:var(--surface); border-right:1px solid var(--border);
+  position:fixed; top:0; left:0; height:100vh;
+  display:flex; flex-direction:column; padding:1.5rem 1rem;
+  z-index:50;
+}
+.sidebar-logo { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; letter-spacing:3px; color:var(--accent); margin-bottom:2rem; display:block; cursor:pointer; }
+.sidebar-logo span { color:var(--text2); font-size:.9rem; letter-spacing:2px; }
+.nav-label { font-size:.65rem; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:.5rem; padding-left:.5rem; }
+.nav-section { margin-bottom:1.25rem; }
+.nav-item {
+  display:flex; align-items:center; gap:.65rem;
+  padding:.6rem .8rem; border-radius:7px;
+  color:var(--text2); font-size:.875rem; font-weight:500;
+  transition:.2s; margin-bottom:.15rem; cursor:pointer;
+  border:1px solid transparent;
+}
+.nav-item:hover { background:var(--card); color:var(--text); }
+.nav-item.active { background:var(--accent-dim); color:var(--accent); border-color:rgba(184,240,64,.15); }
+.nav-icon { width:18px; text-align:center; font-size:.95rem; flex-shrink:0; }
+.sidebar-bottom { margin-top:auto; border-top:1px solid var(--border); padding-top:1rem; }
+.user-chip { display:flex; align-items:center; gap:.65rem; margin-bottom:.85rem; }
+.user-av { width:32px; height:32px; border-radius:8px; background:var(--accent); color:#07070d; font-family:'Bebas Neue',sans-serif; font-size:.95rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.user-av.empty { background:var(--card2); color:var(--muted); }
+.user-details .u-name { font-size:.875rem; font-weight:600; }
+.user-details .u-email { font-size:.7rem; color:var(--muted); }
+.btn-logout { width:100%; background:transparent; border:1px solid var(--border); color:var(--text2); padding:.5rem; border-radius:6px; font-size:.8rem; transition:.2s; }
+.btn-logout:hover { border-color:var(--error); color:var(--error); }
+.main-content { margin-left:var(--sidebar-w); flex:1; padding:2rem 2.25rem; min-height:100vh; }
+
+/* TOPBAR */
+.topbar { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.75rem; }
+.page-heading { font-family:'Bebas Neue',sans-serif; font-size:1.9rem; letter-spacing:1px; line-height:1; }
+.page-sub { color:var(--text2); font-size:.85rem; margin-top:.25rem; }
+
+/*  BUTONLAR */
+.btn { display:inline-flex; align-items:center; gap:.45rem; padding:.6rem 1.3rem; border-radius:7px; font-size:.875rem; font-weight:600; border:none; transition:.2s; cursor:pointer; }
+.btn-accent { background:var(--accent); color:#07070d; }
+.btn-accent:hover { opacity:.88; transform:translateY(-1px); }
+.btn-outline { background:transparent; border:1px solid var(--border2); color:var(--text); }
+.btn-outline:hover { border-color:var(--accent); color:var(--accent); }
+.btn-ghost { background:transparent; border:none; color:var(--text2); }
+.btn-ghost:hover { color:var(--text); }
+.btn-sm { padding:.35rem .8rem; font-size:.8rem; }
+.btn-lg { padding:.85rem 2rem; font-size:1rem; }
+
+/*  FORM*/
+.form-group { margin-bottom:1rem; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.form-label { display:block; font-size:.7rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--text2); margin-bottom:.35rem; }
+.form-input, .form-select {
+  width:100%; background:var(--card2); border:1px solid var(--border);
+  color:var(--text); padding:.7rem .95rem; border-radius:7px;
+  font-size:.9rem; outline:none; transition:.2s;
+}
+.form-input:focus, .form-select:focus { border-color:var(--accent); }
+.form-input::placeholder { color:var(--muted); }
+.form-select option { background:var(--card); }
+.pw-wrap { position:relative; }
+.pw-wrap .form-input { padding-right:2.8rem; }
+.pw-toggle { position:absolute; right:.85rem; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--muted); font-size:.9rem; padding:0; }
+.pw-toggle:hover { color:var(--accent); }
+.field-msg { font-size:.78rem; margin-top:.3rem; display:none; }
+.field-msg.err { color:var(--error); display:block; }
+.field-msg.ok { color:var(--success); display:block; }
+
+/* KARTLAR */
+.card { background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+.card-pad { padding:1.5rem; }
+.card-header { padding:1.1rem 1.5rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.card-title { font-family:'Bebas Neue',sans-serif; font-size:1.15rem; letter-spacing:1px; }
+
+/*KPI */
+.kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.5rem; }
+.kpi { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:1.25rem 1.4rem; position:relative; overflow:hidden; }
+.kpi::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--kpi-color, var(--accent)); }
+.kpi-label { font-size:.68rem; text-transform:uppercase; letter-spacing:1.5px; color:var(--text2); margin-bottom:.3rem; }
+.kpi-val { font-family:'Bebas Neue',sans-serif; font-size:2rem; line-height:1; color:var(--kpi-color, var(--accent)); }
+.kpi-sub { font-size:.75rem; color:var(--muted); margin-top:.2rem; }
+
+/*  MODAL */
+.modal-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,.75);
+  backdrop-filter:blur(5px); z-index:200;
+  display:none; align-items:center; justify-content:center; padding:1rem;
+}
+.modal-overlay.open { display:flex; }
+.modal-box {
+  background:var(--card); border:1px solid var(--border2); border-radius:14px;
+  padding:2rem; width:520px; max-width:100%; max-height:90vh; overflow-y:auto;
+}
+.modal-box.wide { width:680px; }
+.modal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; }
+.modal-title { font-family:'Bebas Neue',sans-serif; font-size:1.7rem; letter-spacing:1px; }
+.modal-close { background:var(--card2); border:1px solid var(--border); color:var(--text2); width:30px; height:30px; border-radius:6px; font-size:.9rem; display:flex; align-items:center; justify-content:center; }
+.modal-close:hover { border-color:var(--error); color:var(--error); }
+
+/*  TABS*/
+.tab-bar { display:flex; background:var(--card2); border:1px solid var(--border); border-radius:8px; overflow:hidden; margin-bottom:1.5rem; }
+.tab-btn { flex:1; padding:.65rem; background:transparent; border:none; color:var(--text2); font-size:.85rem; font-weight:500; transition:.2s; cursor:pointer; }
+.tab-btn.active { background:var(--accent); color:#07070d; font-weight:700; }
+.tab-pane { display:none; }
+.tab-pane.active { display:block; }
+
+/* TOAST*/
+.toast-wrap { position:fixed; bottom:1.5rem; right:1.5rem; z-index:999; display:flex; flex-direction:column; gap:.5rem; pointer-events:none; }
+.toast {
+  background:var(--card); border:1px solid var(--border2); border-radius:10px;
+  padding:.85rem 1.1rem; max-width:300px; pointer-events:auto;
+  display:flex; align-items:center; gap:.65rem;
+  transform:translateX(130%); transition:.35s ease;
+  box-shadow:0 8px 28px rgba(0,0,0,.4);
+}
+.toast.show { transform:translateX(0); }
+.toast.success { border-color:rgba(184,240,64,.3); }
+.toast.error { border-color:rgba(240,80,80,.3); }
+.toast-icon { font-size:1.1rem; flex-shrink:0; }
+.toast-msg { font-size:.875rem; line-height:1.4; }
+
+/* LANDING */
+#page-landing { background:var(--bg); }
+.landing-nav {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:1rem 3.5rem; background:rgba(7,7,13,.92);
+  backdrop-filter:blur(18px); border-bottom:1px solid var(--border);
+  position:sticky; top:0; z-index:50;
+}
+.landing-logo { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; letter-spacing:4px; color:var(--accent); }
+.landing-nav-links { display:flex; gap:1.75rem; list-style:none; }
+.landing-nav-links a { color:var(--text2); font-size:.875rem; font-weight:500; transition:.2s; }
+.landing-nav-links a:hover { color:var(--accent); }
+.landing-nav-cta { display:flex; gap:.65rem; }
+.hero {
+  min-height:calc(100vh - 60px); display:flex; flex-direction:column;
+  justify-content:center; padding:0 3.5rem; position:relative; overflow:hidden;
+}
+.hero-bg {
+  position:absolute; inset:0;
+  background-image:linear-gradient(rgba(184,240,64,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(184,240,64,.03) 1px, transparent 1px);
+  background-size:54px 54px;
+}
+.hero-orb { position:absolute; width:550px; height:550px; border-radius:50%; top:-80px; right:-80px; background:radial-gradient(circle, rgba(184,240,64,.07) 0%, transparent 70%); pointer-events:none; }
+.hero h1 { font-family:'Bebas Neue',sans-serif; font-size:clamp(4.5rem, 10vw, 9rem); line-height:.9; letter-spacing:1px; }
+.hero h1 em { color:var(--accent); font-style:normal; }
+.hero-desc { max-width:460px; font-size:1rem; line-height:1.75; color:var(--text2); margin-top:1.25rem; }
+.hero-cta { display:flex; gap:.85rem; margin-top:2rem; }
+.stats-belt { display:flex; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+.stats-belt-item { flex:1; padding:1.5rem 2rem; text-align:center; border-right:1px solid var(--border); }
+.stats-belt-item:last-child { border-right:none; }
+.sbi-num { font-family:'Bebas Neue',sans-serif; font-size:2.2rem; color:var(--accent); line-height:1; }
+.sbi-label { font-size:.72rem; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-top:.25rem; }
+.features-section { padding:5rem 3.5rem; }
+.section-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(2.2rem, 4.5vw, 3.5rem); line-height:.95; margin-bottom:2.5rem; }
+.section-label { font-size:.7rem; letter-spacing:3px; color:var(--accent); margin-bottom:.6rem; text-transform:uppercase; }
+.features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--border); border:1px solid var(--border); }
+.feat-card { background:var(--card); padding:2rem; transition:.25s; }
+.feat-card:hover { background:var(--card2); }
+.feat-icon { font-size:1.6rem; margin-bottom:1rem; }
+.feat-card h3 { font-size:.95rem; font-weight:700; margin-bottom:.5rem; }
+.feat-card p { font-size:.83rem; color:var(--text2); line-height:1.65; }
+
+/* HAKKIMIZDA */
+.about-section { padding:5rem 3.5rem; border-top:1px solid var(--border); }
+.about-grid { display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:center; }
+.about-text h2 { font-family:'Bebas Neue',sans-serif; font-size:clamp(2rem, 4vw, 3.2rem); line-height:.95; margin-bottom:1.25rem; }
+.about-text h2 em { color:var(--accent); font-style:normal; }
+.about-text p { color:var(--text2); font-size:.9rem; line-height:1.8; margin-bottom:1rem; }
+.about-stats { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:2rem; }
+.about-stat { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:1.25rem; text-align:center; }
+.about-stat-num { font-family:'Bebas Neue',sans-serif; font-size:2.2rem; color:var(--accent); line-height:1; }
+.about-stat-lbl { font-size:.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-top:.2rem; }
+.team-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; }
+.team-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.5rem; text-align:center; transition:.2s; }
+.team-card:hover { border-color:rgba(184,240,64,.3); }
+.team-av { width:56px; height:56px; border-radius:50%; background:var(--accent-dim); border:2px solid rgba(184,240,64,.3); display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin:0 auto 1rem; }
+.team-card h4 { font-weight:700; font-size:.9rem; margin-bottom:.25rem; }
+.team-card p { font-size:.78rem; color:var(--muted); }
+
+/* İLETİŞİM  */
+.contact-section { padding:5rem 3.5rem; border-top:1px solid var(--border); }
+.contact-grid { display:grid; grid-template-columns:1fr 1.2fr; gap:3rem; }
+.contact-info h2 { font-family:'Bebas Neue',sans-serif; font-size:clamp(2rem,4vw,3.2rem); line-height:.95; margin-bottom:1.25rem; }
+.contact-info h2 em { color:var(--accent); font-style:normal; }
+.contact-info p { color:var(--text2); font-size:.9rem; line-height:1.8; margin-bottom:2rem; }
+.contact-items { display:flex; flex-direction:column; gap:1rem; }
+.contact-item { display:flex; align-items:center; gap:.85rem; }
+.contact-ic { width:40px; height:40px; background:var(--accent-dim); border:1px solid rgba(184,240,64,.2); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; }
+.contact-item-txt strong { display:block; font-size:.875rem; font-weight:600; margin-bottom:.1rem; }
+.contact-item-txt span { font-size:.8rem; color:var(--muted); }
+.contact-form-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:2rem; }
+.contact-form-card h3 { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; letter-spacing:1px; margin-bottom:1.5rem; }
+.contact-textarea { width:100%; background:var(--card2); border:1px solid var(--border); color:var(--text); padding:.7rem .95rem; border-radius:7px; font-size:.9rem; outline:none; transition:.2s; resize:vertical; min-height:100px; }
+.contact-textarea:focus { border-color:var(--accent); }
+.contact-textarea::placeholder { color:var(--muted); }
+
+.landing-footer { padding:1.75rem 3.5rem; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+.lf-logo { font-family:'Bebas Neue',sans-serif; font-size:1.2rem; letter-spacing:3px; color:var(--accent); }
+.lf-copy { font-size:.78rem; color:var(--muted); }
+
+/* AUTH  */
+#page-auth { display:none; }
+#page-auth.active { display:grid; grid-template-columns:1fr 1fr; min-height:100vh; }
+.auth-left { background:var(--surface); position:relative; overflow:hidden; display:flex; flex-direction:column; justify-content:space-between; padding:3rem; }
+.auth-left-bg { position:absolute; inset:0; background:linear-gradient(135deg, rgba(184,240,64,.04) 0%, transparent 60%, rgba(64,200,240,.04) 100%); }
+.auth-left-content { position:relative; }
+.auth-left-logo { font-family:'Bebas Neue',sans-serif; font-size:1.7rem; letter-spacing:4px; color:var(--accent); position:relative; }
+.auth-tagline { font-family:'Bebas Neue',sans-serif; font-size:3rem; line-height:1; margin-top:2.5rem; }
+.auth-tagline em { color:var(--accent); font-style:normal; }
+.auth-tagline-sub { color:var(--text2); font-size:.875rem; line-height:1.7; margin-top:.9rem; max-width:320px; }
+.auth-perks { margin-top:1.75rem; display:flex; flex-direction:column; gap:.6rem; }
+.auth-perk { display:flex; align-items:center; gap:.65rem; font-size:.85rem; color:var(--text2); }
+.auth-perk::before { content:'✓'; color:var(--accent); font-weight:700; flex-shrink:0; }
+.auth-left-foot { position:relative; font-size:.72rem; color:var(--muted); }
+.auth-right { display:flex; align-items:center; justify-content:center; padding:3rem; }
+.auth-form-wrap { width:100%; max-width:400px; }
+
+/*  BMI */
+.bmi-layout { display:grid; grid-template-columns:1fr 1.1fr; gap:1.25rem; }
+.slider-block { margin-bottom:1.35rem; }
+.slider-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:.65rem; }
+.slider-label-txt { font-size:.7rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--text2); }
+.slider-val-txt { font-family:'Bebas Neue',sans-serif; font-size:1.75rem; color:var(--accent); line-height:1; }
+.slider-val-txt small { font-size:.85rem; color:var(--text2); font-family:'DM Sans',sans-serif; font-weight:500; }
+input[type=range] { -webkit-appearance:none; width:100%; height:5px; background:var(--border2); border-radius:3px; outline:none; cursor:pointer; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:17px; height:17px; border-radius:50%; background:var(--accent); cursor:pointer; }
+.bmi-result-card { background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+.bmi-empty { padding:4rem 2rem; text-align:center; color:var(--muted); }
+.bmi-empty .empty-icon { font-size:2.5rem; display:block; margin-bottom:.85rem; }
+.bmi-result-body { display:none; }
+.bmi-result-body.show { display:block; }
+.bmi-res-top { padding:1.5rem; border-bottom:1px solid var(--border); }
+.bmi-score-row { display:flex; align-items:flex-end; gap:.65rem; margin-bottom:.75rem; }
+.bmi-score-num { font-family:'Bebas Neue',sans-serif; font-size:5rem; line-height:1; }
+.bmi-score-lbl { font-size:.85rem; color:var(--text2); padding-bottom:.7rem; }
+.bmi-cat-badge { display:inline-flex; align-items:center; padding:.3rem .85rem; border-radius:50px; font-size:.78rem; font-weight:700; }
+.gauge-section { padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); }
+.gauge-lbl { font-size:.66rem; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:.8rem; }
+.gauge-bar { position:relative; }
+.gauge-segs { display:flex; height:9px; border-radius:5px; overflow:hidden; gap:2px; }
+.gauge-seg { height:100%; }
+.gauge-needle { position:absolute; top:-5px; width:19px; height:19px; border-radius:50%; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,.5); transform:translateX(-50%); transition:left 1s ease; }
+.gauge-ticks { display:flex; justify-content:space-between; margin-top:.4rem; }
+.gauge-ticks span { font-size:.6rem; color:var(--muted); }
+.bmi-details-grid { display:grid; grid-template-columns:1fr 1fr; gap:.65rem; padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); }
+.bd-item { background:var(--surface); padding:.85rem 1rem; border-radius:8px; }
+.bd-item .bd-l { font-size:.66rem; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:.15rem; }
+.bd-item .bd-v { font-family:'Bebas Neue',sans-serif; font-size:1.25rem; line-height:1; }
+.bmi-advice { margin:1.1rem 1.5rem; background:rgba(184,240,64,.05); border:1px solid rgba(184,240,64,.12); border-radius:8px; padding:1rem; }
+.bmi-advice h4 { font-size:.78rem; font-weight:700; color:var(--accent); margin-bottom:.35rem; }
+.bmi-advice p { font-size:.8rem; color:var(--text2); line-height:1.6; }
+.bmi-actions { padding:0 1.5rem 1.5rem; display:flex; gap:.65rem; }
+.bmi-table-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.35rem; margin-top:1rem; }
+.bmi-table-card h3 { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; margin-bottom:1rem; }
+.bmi-tbl { width:100%; border-collapse:collapse; }
+.bmi-tbl th { font-size:.65rem; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); padding:.6rem .8rem; text-align:left; border-bottom:1px solid var(--border); }
+.bmi-tbl td { padding:.7rem .8rem; font-size:.83rem; border-bottom:1px solid rgba(37,37,53,.5); }
+.bmi-tbl tr:last-child td { border-bottom:none; }
+.cat-dot { width:7px; height:7px; border-radius:50%; display:inline-block; margin-right:.45rem; vertical-align:middle; }
+
+/*  HAFTALIK PROGRAM  */
+.weekly-top { display:grid; grid-template-columns:230px 1fr; gap:1.25rem; margin-bottom:1.25rem; }
+.program-settings { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.35rem; }
+.prog-settings-title { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; margin-bottom:1.1rem; }
+.week-controls { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.35rem; }
+.week-nav-row { display:flex; align-items:center; gap:.75rem; margin-bottom:1.1rem; }
+.week-arrow { background:var(--surface); border:1px solid var(--border); color:var(--text2); width:30px; height:30px; border-radius:6px; font-size:.95rem; display:flex; align-items:center; justify-content:center; transition:.2s; }
+.week-arrow:hover { border-color:var(--accent); color:var(--accent); }
+.week-range-txt { font-size:.8rem; color:var(--text2); }
+.week-stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:.65rem; }
+.wstat { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:.85rem; text-align:center; }
+.wstat-v { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; color:var(--accent); }
+.wstat-l { font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-top:.1rem; }
+.week-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:.6rem; margin-bottom:1.25rem; }
+.day-card { background:var(--card); border:1px solid var(--border); border-radius:10px; overflow:hidden; cursor:pointer; transition:.22s; }
+.day-card:hover { border-color:rgba(184,240,64,.35); transform:translateY(-2px); }
+.day-card.rest { opacity:.5; }
+.day-head { padding:.6rem .8rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+.day-name { font-family:'Bebas Neue',sans-serif; font-size:.85rem; letter-spacing:1px; }
+.day-type-tag { font-size:.58rem; padding:.15rem .45rem; border-radius:3px; font-weight:700; letter-spacing:.5px; }
+.tt-cardio { background:rgba(64,200,240,.14); color:var(--accent2); }
+.tt-strength { background:rgba(184,240,64,.12); color:var(--accent); }
+.tt-hiit { background:rgba(240,64,160,.14); color:var(--accent3); }
+.tt-flex { background:rgba(184,240,64,.08); color:var(--accent); }
+.tt-rest { background:rgba(90,90,120,.12); color:var(--muted); }
+.day-body { padding:.6rem .8rem; }
+.day-ex-item { display:flex; justify-content:space-between; align-items:center; padding:.3rem 0; border-bottom:1px solid rgba(37,37,53,.5); }
+.day-ex-item:last-child { border-bottom:none; }
+.day-ex-name { font-size:.72rem; font-weight:500; }
+.day-ex-sets { font-size:.65rem; color:var(--accent); white-space:nowrap; }
+.day-foot { padding:.45rem .8rem; border-top:1px solid var(--border); background:var(--surface); }
+.day-kcal { font-size:.68rem; color:var(--muted); }
+.day-kcal span { color:var(--accent4); font-weight:600; }
+.muscle-tag { font-size:.6rem; color:var(--accent2); margin-top:.25rem; display:block; }
+.detail-panel { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.5rem; display:none; margin-top:.5rem; }
+.detail-panel.open { display:block; }
+.detail-panel-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; }
+.detail-panel-title { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; letter-spacing:1px; }
+.detail-panel-close { background:var(--card2); border:1px solid var(--border); color:var(--text2); width:28px; height:28px; border-radius:6px; font-size:.85rem; display:flex; align-items:center; justify-content:center; }
+.detail-panel-close:hover { border-color:var(--error); color:var(--error); }
+.exercise-cards-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:.85rem; }
+.ex-detail-card { background:var(--surface); border:1px solid var(--border); border-radius:9px; padding:1.1rem; }
+.ex-dc-name { font-weight:700; font-size:.9rem; margin-bottom:.5rem; }
+.ex-specs { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:.6rem; }
+.ex-spec-tag { background:var(--accent-dim); color:var(--accent); font-size:.68rem; padding:.2rem .55rem; border-radius:4px; font-weight:600; }
+.ex-dc-desc { font-size:.78rem; color:var(--text2); line-height:1.5; }
+.ex-muscle-badge { font-size:.65rem; color:var(--accent2); background:rgba(64,200,240,.1); padding:.15rem .5rem; border-radius:3px; margin-top:.5rem; display:inline-block; }
+
+/*  MEMBERS */
+.members-toolbar { display:flex; gap:.85rem; margin-bottom:1.25rem; flex-wrap:wrap; }
+.search-wrap { position:relative; flex:1; min-width:180px; }
+.search-icon { position:absolute; left:.85rem; top:50%; transform:translateY(-50%); font-size:.85rem; }
+.search-inp { width:100%; background:var(--card); border:1px solid var(--border); color:var(--text); padding:.65rem .9rem .65rem 2.5rem; border-radius:7px; font-size:.875rem; outline:none; transition:.2s; }
+.search-inp:focus { border-color:var(--accent); }
+.filter-sel { background:var(--card); border:1px solid var(--border); color:var(--text); padding:.65rem .9rem; border-radius:7px; font-size:.875rem; outline:none; cursor:pointer; }
+.members-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:1rem; }
+.member-card { background:var(--card); border:1px solid var(--border); border-radius:11px; padding:1.25rem; cursor:pointer; transition:.2s; }
+.member-card:hover { border-color:rgba(184,240,64,.3); transform:translateY(-2px); }
+.mc-head { display:flex; align-items:center; gap:.85rem; margin-bottom:1rem; }
+.mc-av { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-family:'Bebas Neue',sans-serif; font-size:1.1rem; color:#07070d; flex-shrink:0; }
+.mc-info h3 { font-size:.875rem; font-weight:700; }
+.mc-info p { font-size:.72rem; color:var(--muted); }
+.mc-bmi-badge { margin-left:auto; font-size:.68rem; padding:.2rem .55rem; border-radius:4px; font-weight:700; flex-shrink:0; }
+.mc-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:.5rem; margin-bottom:.85rem; }
+.mc-stat { background:var(--surface); border-radius:7px; padding:.65rem; text-align:center; }
+.mc-stat-v { display:block; font-family:'Bebas Neue',sans-serif; font-size:1.2rem; line-height:1; }
+.mc-stat-l { font-size:.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
+.mc-foot { display:flex; justify-content:space-between; align-items:center; }
+.mc-goal-tag { font-size:.72rem; color:var(--text2); }
+.mc-actions { display:flex; gap:.4rem; }
+.mc-act-btn { background:var(--surface); border:1px solid var(--border); color:var(--text2); width:28px; height:28px; border-radius:6px; font-size:.8rem; display:flex; align-items:center; justify-content:center; transition:.2s; }
+.mc-act-btn:hover { border-color:var(--accent); color:var(--accent); }
+.mc-act-btn.danger:hover { border-color:var(--error); color:var(--error); }
+.empty-state-card { grid-column:1/-1; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:3rem; text-align:center; color:var(--muted); }
+.es-emoji { font-size:2.5rem; display:block; margin-bottom:.75rem; }
+
+/*  DASHBOARD */
+.dash-grid { display:grid; grid-template-columns:1.6fr 1fr; gap:1.25rem; margin-bottom:1.25rem; }
+.chart-wrap { position:relative; }
+.chart-empty-msg { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:.82rem; color:var(--muted); text-align:center; width:200px; line-height:1.5; }
+.log-section-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; }
+.log-table { width:100%; border-collapse:collapse; font-size:.83rem; }
+.log-table th { font-size:.65rem; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); padding:.65rem 1.25rem; text-align:left; border-bottom:1px solid var(--border); }
+.log-table td { padding:.7rem 1.25rem; border-bottom:1px solid rgba(37,37,53,.5); }
+.log-table tr:last-child td { border-bottom:none; }
+.td-accent { color:var(--accent); font-weight:600; }
+.goal-item { margin-bottom:1.1rem; }
+.goal-row { display:flex; justify-content:space-between; font-size:.82rem; margin-bottom:.4rem; }
+.goal-name { color:var(--text2); }
+.goal-pct { font-weight:700; }
+.goal-track { height:5px; background:var(--border2); border-radius:3px; overflow:hidden; }
+.goal-bar { height:100%; border-radius:3px; transition:width 1s ease; }
+.act-item { display:flex; align-items:center; gap:.75rem; padding:.65rem 0; border-bottom:1px solid var(--border); }
+.act-item:last-child { border-bottom:none; }
+.act-icon-wrap { width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:.9rem; flex-shrink:0; }
+.at-title { font-size:.82rem; font-weight:600; }
+.at-sub { font-size:.72rem; color:var(--muted); }
+
+/*  MEMBER DETAIL */
+.profile-grid { display:grid; grid-template-columns:1fr 1fr; gap:.65rem; margin-bottom:1rem; }
+.profile-item { background:var(--surface); border-radius:8px; padding:.85rem 1rem; }
+.pi-label { font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:.15rem; }
+.pi-val { font-weight:600; font-size:.875rem; }
+
+/*ANİMASYONLAR  */
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+@keyframes slideUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+/*  APP SECTION  */
+.app-section { display:block; }
+</style>
+</head>
+<body>
+
+<div id="toastWrap" class="toast-wrap"></div>
+
+<!-- ==============================
+     LANDING PAGE
+============================== -->
+<div id="page-landing" class="page active">
+  <nav class="landing-nav">
+    <div class="landing-logo">FITTRACK</div>
+    <ul class="landing-nav-links">
+      <li><a href="#features">Özellikler</a></li>
+      <li><a href="#about">Hakkımızda</a></li>
+      <li><a href="#contact">İletişim</a></li>
+    </ul>
+    <div class="landing-nav-cta">
+      <button class="btn btn-outline" onclick="goPage('auth');authTab('login')">Giriş Yap</button>
+      <button class="btn btn-accent" onclick="goPage('auth');authTab('register')">Üye Ol</button>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-orb"></div>
+    <h1>FITNESS<br>HEDEFLERİNE<br><em>ULAŞ</em></h1>
+    <p class="hero-desc">BMI takibi, kişisel haftalık egzersiz programları ve ilerleme istatistikleriyle daha sağlıklı bir yaşama başla.</p>
+   
+  </div>
+
+  <div class="stats-belt">
+    <div class="stats-belt-item"><div class="sbi-num" data-to="15">0</div><div class="sbi-label">Aktif Üye</div></div>
+    <div class="stats-belt-item"><div class="sbi-num" data-to="100">0</div><div class="sbi-label">Egzersiz</div></div>
+    <div class="stats-belt-item"><div class="sbi-num" data-to="94">0</div><div class="sbi-label">% Memnuniyet</div></div>
+    <div class="stats-belt-item"><div class="sbi-num" data-to="7">0</div><div class="sbi-label">Günlük Program</div></div>
+  </div>
+
+  <section class="features-section" id="features">
+    <div class="section-label">ÖZELLİKLER</div>
+    <div class="section-title">NELER SUNUYORİZ</div>
+    <div class="features-grid">
+      <div class="feat-card"><div class="feat-icon">📏</div><h3>BMI Hesaplama</h3><p>Boy ve kilonuzu girerek vücut kitle indeksinizi hesaplayın. İdeal kilo aralığınızı ve günlük kalori ihtiyacınızı öğrenin.</p></div>
+      <div class="feat-card"><div class="feat-icon">📋</div><h3>Haftalık Program</h3><p>Her gün farklı bir kas grubunu çalıştıran, hedefinize göre kişiselleştirilmiş 7 günlük egzersiz programı oluşturun.</p></div>
+      <div class="feat-card"><div class="feat-icon">📊</div><h3>İlerleme Takibi</h3><p>BMI seyrinizi ve kilo değişimlerinizi grafiklerle görün. Haftalık ve aylık karşılaştırmalar yapın.</p></div>
+      <div class="feat-card"><div class="feat-icon">👥</div><h3>Üye Yönetimi</h3><p>Birden fazla kişiyi tek panelden yönetin. Her üye için ölçüm kaydı ve kişisel egzersiz programı oluşturun.</p></div>
+      <div class="feat-card"><div class="feat-icon">🎯</div><h3>Hedef Belirleme</h3><p>Kilo verme, kas kazanma veya form koruma hedeflerinize göre tamamen özelleştirilmiş antrenman planı alın.</p></div>
+      <div class="feat-card"><div class="feat-icon">💾</div><h3>Yerel Kayıt</h3><p>Tüm verileriniz tarayıcınızda güvenle saklanır. Sunucu gerekmez, internet bağlantısı olmadan da çalışır.</p></div>
+    </div>
+  </section>
+
+  <!-- HAKKIMIZDA -->
+  <section class="about-section" id="about">
+    <div class="section-label">HAKKIMIZDA</div>
+    <div class="about-grid">
+      <div class="about-text">
+        <h2>FİTNESS<br>DÜNYASINI<br><em>DEĞİŞTİRİYORUZ</em></h2>
+        <p>FitTrack Pro olarak, herkesin kendi evinde profesyonel bir fitness takip sistemi kullanabilmesi için çalışıyoruz. 2022'den bu yana binlerce kullanıcıya hedeflerine ulaşmalarında yardım ettik.</p>
+        <p>Bilimsel temelli egzersiz programları ve akıllı takip sistemiyle sağlıklı yaşam artık daha kolay. Kişisel antrenör maliyeti olmadan, kendi temponda ilerle.</p>
+        <div class="about-stats">
+          <div class="about-stat"><div class="about-stat-num">250+</div><div class="about-stat-lbl">Aktif Kullanıcı</div></div>
+          <div class="about-stat"><div class="about-stat-num">3 Yıl</div><div class="about-stat-lbl">Deneyim</div></div>
+          <div class="about-stat"><div class="about-stat-num">100+</div><div class="about-stat-lbl">Egzersiz</div></div>
+          <div class="about-stat"><div class="about-stat-num">%94</div><div class="about-stat-lbl">Memnuniyet</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="section-label" style="margin-bottom:1.25rem">EKİBİMİZ</div>
+        <div class="team-grid">
+          <div class="team-card">
+            <div class="team-av">💪</div>
+            <h4>Göktug Alaf</h4>
+            <p>Fitness Koçu</p>
+          </div>
+          <div class="team-card">
+            <div class="team-av">🏋️</div>
+            <h4>Selin Yılmaz</h4>
+            <p>Beslenme Uzmanı</p>
+          </div>
+          <div class="team-card">
+            <div class="team-av">⚡</div>
+            <h4>Emirhan Karapınar</h4>
+            <p>Yazılım Geliştirici</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- İLETİŞİM -->
+  <section class="contact-section" id="contact">
+    <div class="section-label">İLETİŞİM</div>
+    <div class="contact-grid">
+      <div class="contact-info">
+        <h2>BİZE<br><em>ULAŞIN</em></h2>
+        <p>Sorularınız, önerileriniz veya işbirliği teklifleriniz için bize her zaman ulaşabilirsiniz. En kısa sürede geri dönüş yapıyoruz.</p>
+        <div class="contact-items">
+          <div class="contact-item">
+            <div class="contact-ic">📧</div>
+            <div class="contact-item-txt">
+              <strong>E-Posta</strong>
+              <span>info@fittrackpro.com</span>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-ic">📞</div>
+            <div class="contact-item-txt">
+              <strong>Telefon</strong>
+              <span>+90 (551) 6480544</span>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-ic">📍</div>
+            <div class="contact-item-txt">
+              <strong>Adres</strong>
+              <span>Buca, İzmir, Türkiye</span>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-ic">🕐</div>
+            <div class="contact-item-txt">
+              <strong>Çalışma Saatleri</strong>
+              <span>Pzt–Cum, 09:00 – 18:00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="contact-form-card">
+        <h3>MESAJ GÖNDERIN</h3>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Ad Soyad</label><input class="form-input" id="ct-name" placeholder="Ahmet Yılmaz" type="text"></div>
+          <div class="form-group"><label class="form-label">E-Posta</label><input class="form-input" id="ct-email" placeholder="ahmet@email.com" type="email"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Konu</label><input class="form-input" id="ct-subject" placeholder="Mesajınızın konusu" type="text"></div>
+        <div class="form-group"><label class="form-label">Mesaj</label><textarea class="contact-textarea" id="ct-message" placeholder="Mesajınızı buraya yazın..."></textarea></div>
+        <button class="btn btn-accent" style="width:100%;justify-content:center" onclick="sendContact()">MESAJ GÖNDER →</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="landing-footer">
+    <div class="lf-logo">FITTRACK</div>
+    <div class="lf-copy">© 2025 FitTrack Pro. Tüm hakları saklıdır.</div>
+    <div class="lf-copy" style="color:var(--accent)">Sağlık · Güç · Denge</div>
+  </footer>
+</div>
+
+<!-- ==============================
+     AUTH PAGE
+============================== -->
+<div id="page-auth" class="page">
+  <div class="auth-left">
+    <div class="auth-left-bg"></div>
+    <div>
+      <div class="auth-left-logo">FITTRACK</div>
+    </div>
+    <div class="auth-left-content">
+      <div class="auth-tagline">FİTNESS<br>HEDEFLERİNE<br><em>ULAŞ</em></div>
+      <div class="auth-tagline-sub">Kişiselleştirilmiş spor programları ve akıllı takip sistemi ile daha sağlıklı bir yaşama adım at.</div>
+      <div class="auth-perks">
+        <div class="auth-perk">BMI ve vücut indeksi takibi</div>
+        <div class="auth-perk">Haftalık kişisel egzersiz programı</div>
+        <div class="auth-perk">İlerleme grafikleri ve istatistikler</div>
+        <div class="auth-perk">Çoklu üye yönetimi</div>
+      </div>
+    </div>
+    <div class="auth-left-foot">© 2026 FitTrack Pro</div>
+  </div>
+  <div class="auth-right">
+    <div class="auth-form-wrap">
+      <div class="tab-bar">
+        <button class="tab-btn" id="tab-reg-btn" onclick="authTab('register')">Üye Ol</button>
+        <button class="tab-btn" id="tab-log-btn" onclick="authTab('login')">Giriş Yap</button>
+      </div>
+      <div class="tab-pane" id="auth-register">
+        <div style="margin-bottom:1.35rem"><div style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem">HESAP OLUŞTUR</div><div style="color:var(--text2);font-size:.85rem;margin-top:.25rem">Ücretsiz üye ol, hemen başla</div></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Ad</label><input class="form-input" id="r-name" placeholder="Ahmet" type="text"></div>
+          <div class="form-group"><label class="form-label">Soyad</label><input class="form-input" id="r-surname" placeholder="Yılmaz" type="text"></div>
+        </div>
+        <div class="form-group"><label class="form-label">E-Posta</label><input class="form-input" id="r-email" placeholder="ahmet@email.com" type="email"><div class="field-msg" id="r-email-msg"></div></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Boy (cm)</label><input class="form-input" id="r-height" placeholder="175" type="number" min="100" max="250"></div>
+          <div class="form-group"><label class="form-label">Kilo (kg)</label><input class="form-input" id="r-weight" placeholder="70" type="number" min="30" max="300"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Yaş</label><input class="form-input" id="r-age" placeholder="30" type="number" min="10" max="100"></div>
+          <div class="form-group"><label class="form-label">Cinsiyet</label><select class="form-select" id="r-gender"><option value="male">Erkek</option><option value="female">Kadın</option></select></div>
+        </div>
+        <div class="form-group"><label class="form-label">Hedef</label><select class="form-select" id="r-goal"><option value="lose">Kilo Vermek</option><option value="maintain">Formu Korumak</option><option value="gain">Kas Kazanmak</option></select></div>
+        <div class="form-group"><label class="form-label">Şifre</label><div class="pw-wrap"><input class="form-input" id="r-pw" placeholder="En az 6 karakter" type="password"><button class="pw-toggle" onclick="togglePw('r-pw')">👁</button></div><div class="field-msg" id="r-pw-msg"></div></div>
+        <div style="display:flex;align-items:flex-start;gap:.55rem;margin-bottom:1.1rem"><input type="checkbox" id="r-terms" style="width:15px;height:15px;accent-color:var(--accent);margin-top:.1rem;flex-shrink:0"><span style="font-size:.8rem;color:var(--text2)">Kullanım şartlarını okudum ve kabul ediyorum</span></div>
+        <button class="btn btn-accent" style="width:100%;justify-content:center;padding:.95rem" onclick="doRegister()">HESAP OLUŞTUR →</button>
+      </div>
+      <div class="tab-pane" id="auth-login">
+        <div style="margin-bottom:1.35rem"><div style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem">HOŞ GELDİN</div><div style="color:var(--text2);font-size:.85rem;margin-top:.25rem">Hesabına giriş yap</div></div>
+        <div class="form-group"><label class="form-label">E-Posta</label><input class="form-input" id="l-email" placeholder="ahmet@email.com" type="email"></div>
+        <div class="form-group"><label class="form-label">Şifre</label><div class="pw-wrap"><input class="form-input" id="l-pw" placeholder="Şifreniz" type="password"><button class="pw-toggle" onclick="togglePw('l-pw')">👁</button></div><div class="field-msg" id="l-msg"></div></div>
+        <div style="text-align:right;margin-bottom:1.1rem"><a href="#" style="font-size:.8rem;color:var(--accent)">Şifremi unuttum</a></div>
+        <button class="btn btn-accent" style="width:100%;justify-content:center;padding:.95rem" onclick="doLogin()">GİRİŞ YAP →</button>
+        <div style="text-align:center;margin-top:1.1rem;font-size:.8rem;color:var(--muted)">Hesabın yok mu? <button onclick="authTab('register')" style="background:none;border:none;color:var(--accent);font-size:.8rem;cursor:pointer">Üye ol</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================
+     APP SHELL
+============================== -->
+<div id="app-shell" class="page">
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="sidebar-logo" onclick="goPage('landing')" style="cursor:pointer">FIT<span>TRACK</span></a>
+      <nav>
+        <div class="nav-section">
+          <div class="nav-label">Genel</div>
+          <div class="nav-item" id="nav-dashboard" onclick="showSection('dashboard')"><span class="nav-icon">📊</span>Dashboard</div>
+          <div class="nav-item" id="nav-bmi" onclick="showSection('bmi')"><span class="nav-icon">📏</span>BMI Hesapla</div>
+          <div class="nav-item" id="nav-weekly" onclick="showSection('weekly')"><span class="nav-icon">📋</span>Haftalık Program</div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-label">Yönetim</div>
+          <div class="nav-item" id="nav-members" onclick="showSection('members')"><span class="nav-icon">👥</span>Üyeler</div>
+        </div>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="user-chip">
+          <div class="user-av empty" id="sb-av">?</div>
+          <div class="user-details"><div class="u-name" id="sb-name">—</div><div class="u-email" id="sb-email">—</div></div>
+        </div>
+        <button class="btn-logout" onclick="doLogout()">Çıkış Yap</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <!-- DASHBOARD -->
+      <section id="sec-dashboard" class="app-section">
+        <div class="topbar">
+          <div><div class="page-heading" id="dash-welcome">HOŞGELDİNİZ</div><div class="page-sub" id="dash-date"></div></div>
+          <button class="btn btn-accent" onclick="showSection('weekly')">+ Program Oluştur</button>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi" style="--kpi-color:var(--accent)"><div class="kpi-label">Güncel BMI</div><div class="kpi-val" id="d-bmi">—</div><div class="kpi-sub" id="d-bmi-cat">—</div></div>
+          <div class="kpi" style="--kpi-color:var(--accent2)"><div class="kpi-label">Güncel Kilo</div><div class="kpi-val" id="d-weight">—</div><div class="kpi-sub">kg</div></div>
+          <div class="kpi" style="--kpi-color:var(--accent3)"><div class="kpi-label">Toplam Ölçüm</div><div class="kpi-val" id="d-measurements">0</div><div class="kpi-sub">kayıtlı</div></div>
+          <div class="kpi" style="--kpi-color:var(--accent4)"><div class="kpi-label">Kayıtlı Üye</div><div class="kpi-val" id="d-members">0</div><div class="kpi-sub">kişi</div></div>
+        </div>
+        <div class="dash-grid">
+          <div class="card">
+            <div class="card-header"><div class="card-title">BMI & KİLO SEYRİ</div><div style="display:flex;gap:.5rem"><button class="btn btn-ghost btn-sm active-filter" id="chart-filter-all" onclick="chartFilter('all')">Tümü</button><button class="btn btn-ghost btn-sm" id="chart-filter-30" onclick="chartFilter('30')">Son Ay</button></div></div>
+            <div class="card-pad"><div class="chart-wrap"><canvas id="dash-chart" style="width:100%;height:190px;display:block"></canvas><p class="chart-empty-msg" id="chart-empty-msg">Henüz ölçüm kaydı yok. BMI sayfasından ölçüm ekleyin.</p></div></div>
+          </div>
+          <div class="card card-pad">
+            <div class="card-title" style="margin-bottom:1.1rem">HEDEFLER</div>
+            <div class="goal-item"><div class="goal-row"><span class="goal-name">BMI Hedefi</span><span class="goal-pct" id="gp-bmi">0%</span></div><div class="goal-track"><div class="goal-bar" id="gb-bmi" style="width:0%;background:var(--accent)"></div></div></div>
+            <div class="goal-item"><div class="goal-row"><span class="goal-name">Aylık Ölçümler</span><span class="goal-pct" id="gp-ms">0%</span></div><div class="goal-track"><div class="goal-bar" id="gb-ms" style="width:0%;background:var(--accent2)"></div></div></div>
+            <div class="goal-item"><div class="goal-row"><span class="goal-name">Üye Profili</span><span class="goal-pct" id="gp-prof">0%</span></div><div class="goal-track"><div class="goal-bar" id="gb-prof" style="width:0%;background:var(--accent3)"></div></div></div>
+            <div style="border-top:1px solid var(--border);padding-top:1.1rem;margin-top:1.1rem">
+              <div class="card-title" style="font-size:.95rem;margin-bottom:.75rem">SON AKTİVİTE</div>
+              <div class="activity-feed" id="activity-feed"><div class="act-item"><div class="act-icon-wrap" style="background:var(--accent-dim)">🚀</div><div class="act-txt"><div class="at-title">Hoşgeldiniz!</div><div class="at-sub">Aktiviteler burada görünür</div></div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="log-section-grid">
+          <div class="card card-pad">
+            <div class="card-title" style="margin-bottom:1.1rem">YENİ ÖLÇÜM EKLE</div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Kilo (kg)</label><input class="form-input" id="log-weight" placeholder="70" type="number"></div>
+              <div class="form-group"><label class="form-label">Boy (cm)</label><input class="form-input" id="log-height" placeholder="175" type="number"></div>
+            </div>
+            <div class="form-group"><label class="form-label">Not</label><input class="form-input" id="log-note" placeholder="Bugün harika hissettim..." type="text"></div>
+            <button class="btn btn-accent" onclick="addMeasurement()">KAYDET →</button>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">ÖLÇÜM GEÇMİŞİ</div></div>
+            <div style="overflow-x:auto">
+              <table class="log-table" style="min-width:340px">
+                <thead><tr><th>Tarih</th><th>Kilo</th><th>BMI</th><th>Not</th></tr></thead>
+                <tbody id="log-tbody"><tr><td colspan="4" style="color:var(--muted);text-align:center;padding:1.35rem">Kayıt yok</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- BMI -->
+      <section id="sec-bmi" class="app-section" style="display:none">
+        <div class="topbar">
+          <div><div class="page-heading">BMI HESAPLAYICI</div><div class="page-sub">Boy ve kilonuzu girerek vücut kitle indeksinizi öğrenin</div></div>
+        </div>
+        <div class="bmi-layout">
+          <div>
+            <div class="card card-pad" style="margin-bottom:1.1rem">
+              <div class="slider-block">
+                <div class="slider-top"><span class="slider-label-txt">Boy</span><span class="slider-val-txt"><span id="bmi-h-val">170</span><small> cm</small></span></div>
+                <input type="range" id="bmi-h" min="100" max="220" value="170" oninput="bmiSlider('h')">
+              </div>
+              <div class="slider-block">
+                <div class="slider-top"><span class="slider-label-txt">Kilo</span><span class="slider-val-txt"><span id="bmi-w-val">70</span><small> kg</small></span></div>
+                <input type="range" id="bmi-w" min="30" max="200" value="70" oninput="bmiSlider('w')">
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Yaş</label><input class="form-input" id="bmi-age" value="30" type="number" min="10" max="100"></div>
+                <div class="form-group"><label class="form-label">Cinsiyet</label><select class="form-select" id="bmi-gender"><option value="male">Erkek</option><option value="female">Kadın</option></select></div>
+              </div>
+              <button class="btn btn-accent" style="width:100%;justify-content:center;padding:.85rem" onclick="calcBMI()">BMI HESAPLA →</button>
+            </div>
+            <div class="bmi-table-card">
+              <h3>KATEGORİLER</h3>
+              <table class="bmi-tbl">
+                <thead><tr><th>Kategori</th><th>BMI</th><th>Durum</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="cat-dot" style="background:#40c8f0"></span>Zayıf</td><td>&lt; 18.5</td><td style="color:#40c8f0">Dikkat</td></tr>
+                  <tr><td><span class="cat-dot" style="background:#b8f040"></span>Normal</td><td>18.5–24.9</td><td style="color:#b8f040">İdeal</td></tr>
+                  <tr><td><span class="cat-dot" style="background:#f0c040"></span>Kilolu</td><td>25–29.9</td><td style="color:#f0c040">Dikkat</td></tr>
+                  <tr><td><span class="cat-dot" style="background:#f05050"></span>Obez</td><td>≥ 30</td><td style="color:#f05050">Risk</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <div class="bmi-result-card">
+              <div class="bmi-empty" id="bmi-empty"><span class="empty-icon">📏</span><p>Değerleri girin ve hesapla butonuna basın</p></div>
+              <div class="bmi-result-body" id="bmi-result-body">
+                <div class="bmi-res-top">
+                  <div class="bmi-score-row"><div class="bmi-score-num" id="bmi-res-num">0</div><div class="bmi-score-lbl">BMI Değeri</div></div>
+                  <span class="bmi-cat-badge" id="bmi-res-badge"></span>
+                </div>
+                <div class="gauge-section">
+                  <div class="gauge-lbl">BMI ÖLÇEĞI</div>
+                  <div class="gauge-bar">
+                    <div class="gauge-segs">
+                      <div class="gauge-seg" style="flex:2;background:#40c8f0"></div>
+                      <div class="gauge-seg" style="flex:2.6;background:#b8f040"></div>
+                      <div class="gauge-seg" style="flex:2;background:#f0c040"></div>
+                      <div class="gauge-seg" style="flex:3;background:#f05050"></div>
+                    </div>
+                    <div class="gauge-needle" id="bmi-needle" style="left:0%"></div>
+                  </div>
+                  <div class="gauge-ticks"><span>10</span><span>18.5</span><span>25</span><span>30</span><span>40</span></div>
+                </div>
+                <div class="bmi-details-grid">
+                  <div class="bd-item"><div class="bd-l">İdeal Kilo</div><div class="bd-v" id="bmi-ideal">—</div></div>
+                  <div class="bd-item"><div class="bd-l">Fark</div><div class="bd-v" id="bmi-diff">—</div></div>
+                  <div class="bd-item"><div class="bd-l">Durum</div><div class="bd-v" id="bmi-status">—</div></div>
+                  <div class="bd-item"><div class="bd-l">Günlük Kalori</div><div class="bd-v" id="bmi-kcal">—</div></div>
+                </div>
+                <div class="bmi-advice"><h4>💡 Öneri</h4><p id="bmi-advice-txt">—</p></div>
+                <div class="bmi-actions">
+                  <button class="btn btn-accent" style="flex:1;justify-content:center" onclick="showSection('weekly')">Program Oluştur →</button>
+                  <button class="btn btn-outline" style="flex:1;justify-content:center" onclick="saveBMIResult()">Kaydet 📊</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- HAFTALIK PROGRAM -->
+      <section id="sec-weekly" class="app-section" style="display:none">
+        <div class="topbar">
+          <div><div class="page-heading">HAFTALIK PROGRAM</div><div class="page-sub">Her gün farklı bir kas grubuna odaklanan kişisel egzersiz planı</div></div>
+        </div>
+        <div class="weekly-top">
+          <div class="program-settings">
+            <div class="prog-settings-title">PROGRAM AYARLARI</div>
+            <div class="form-group"><label class="form-label">Fitness Seviyesi</label><select class="form-select" id="ps-level"><option value="beginner">Başlangıç</option><option value="intermediate" selected>Orta</option><option value="advanced">İleri</option></select></div>
+            <div class="form-group"><label class="form-label">Hedef</label><select class="form-select" id="ps-goal"><option value="lose">Kilo Vermek</option><option value="maintain" selected>Form Korumak</option><option value="gain">Kas Kazanmak</option></select></div>
+            <div class="form-group"><label class="form-label">Antrenman Günü</label><select class="form-select" id="ps-days"><option value="3">3 Gün</option><option value="4">4 Gün</option><option value="5" selected>5 Gün</option><option value="6">6 Gün</option></select></div>
+            <div class="form-group"><label class="form-label">Günlük Süre (dk)</label><input class="form-input" id="ps-dur" type="number" value="60" min="20" max="120"></div>
+            <div class="form-group"><label class="form-label">BMI (opsiyonel)</label><input class="form-input" id="ps-bmi" type="number" placeholder="Örn: 24.5" step="0.1"></div>
+            <button class="btn btn-accent" style="width:100%;justify-content:center;margin-top:.25rem" onclick="generateProgram()">PROGRAM OLUŞTUR →</button>
+          </div>
+          <div class="week-controls">
+            <div class="week-nav-row">
+              <button class="week-arrow" onclick="changeWeek(-1)">‹</button>
+              <span class="week-range-txt" id="week-range-txt">—</span>
+              <button class="week-arrow" onclick="changeWeek(1)">›</button>
+            </div>
+            <div class="week-stats-row" id="week-stats-row">
+              <div class="wstat"><div class="wstat-v">—</div><div class="wstat-l">Antrenman</div></div>
+              <div class="wstat"><div class="wstat-v">—</div><div class="wstat-l">Süre (dk)</div></div>
+              <div class="wstat"><div class="wstat-v">—</div><div class="wstat-l">Kalori</div></div>
+              <div class="wstat"><div class="wstat-v">—</div><div class="wstat-l">Egzersiz</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="week-grid" id="week-grid">
+          <div style="grid-column:1/-1;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:2.5rem;text-align:center;color:var(--muted)">Sol taraftan ayarları seçin ve <strong style="color:var(--accent)">Program Oluştur</strong>'a tıklayın.</div>
+        </div>
+        <div class="detail-panel" id="week-detail-panel">
+          <div class="detail-panel-head">
+            <div class="detail-panel-title" id="week-detail-title">DETAYLAR</div>
+            <div style="display:flex;gap:.65rem;align-items:center">
+              <button class="btn btn-outline btn-sm" onclick="window.print()">🖨 Yazdır</button>
+              <button class="detail-panel-close" onclick="closeWeekDetail()">✕</button>
+            </div>
+          </div>
+          <div class="exercise-cards-grid" id="week-detail-grid"></div>
+        </div>
+      </section>
+
+      <!-- ÜYELER -->
+      <section id="sec-members" class="app-section" style="display:none">
+        <div class="topbar">
+          <div><div class="page-heading">ÜYE YÖNETİMİ</div><div class="page-sub" id="member-count-txt">Yükleniyor...</div></div>
+          <button class="btn btn-accent" onclick="openAddMemberModal()">+ Yeni Üye Ekle</button>
+        </div>
+        <div class="members-toolbar">
+          <div class="search-wrap"><span class="search-icon">🔍</span><input class="search-inp" id="member-search" placeholder="Üye ara..." oninput="filterMembers()"></div>
+          <select class="filter-sel" id="member-filter-cat" onchange="filterMembers()"><option value="all">Tüm Kategoriler</option><option value="normal">Normal</option><option value="over">Kilolu</option><option value="under">Zayıf</option><option value="obese">Obez</option></select>
+          <select class="filter-sel" id="member-sort" onchange="filterMembers()"><option value="name">Ada Göre</option><option value="bmi">BMI'ya Göre</option></select>
+        </div>
+        <div class="members-grid" id="members-grid"></div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-add-member">
+  <div class="modal-box">
+    <div class="modal-head"><div class="modal-title">YENİ ÜYE EKLE</div><button class="modal-close" onclick="closeModal('modal-add-member')">✕</button></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Ad</label><input class="form-input" id="am-name" placeholder="Ahmet"></div><div class="form-group"><label class="form-label">Soyad</label><input class="form-input" id="am-surname" placeholder="Yılmaz"></div></div>
+    <div class="form-group"><label class="form-label">E-Posta</label><input class="form-input" id="am-email" placeholder="ahmet@email.com" type="email"></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Boy (cm)</label><input class="form-input" id="am-h" type="number" placeholder="175"></div><div class="form-group"><label class="form-label">Kilo (kg)</label><input class="form-input" id="am-w" type="number" placeholder="70"></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Yaş</label><input class="form-input" id="am-age" type="number" placeholder="30"></div><div class="form-group"><label class="form-label">Cinsiyet</label><select class="form-select" id="am-gender"><option value="male">Erkek</option><option value="female">Kadın</option></select></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Hedef</label><select class="form-select" id="am-goal"><option value="lose">Kilo Vermek</option><option value="maintain">Form Korumak</option><option value="gain">Kas Kazanmak</option></select></div><div class="form-group"><label class="form-label">Seviye</label><select class="form-select" id="am-level"><option value="beginner">Başlangıç</option><option value="intermediate">Orta</option><option value="advanced">İleri</option></select></div></div>
+    <div class="form-group"><label class="form-label">Not</label><input class="form-input" id="am-note" placeholder="Sağlık durumu, kısıtlamalar..."></div>
+    <div style="display:flex;gap:.75rem;margin-top:.5rem"><button class="btn btn-outline" style="flex:1;justify-content:center" onclick="closeModal('modal-add-member')">İptal</button><button class="btn btn-accent" style="flex:1;justify-content:center" onclick="saveMember()">ÜYEYİ KAYDET →</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-member-detail">
+  <div class="modal-box wide">
+    <div class="modal-head"><div class="modal-title" id="mdm-title">ÜYE DETAYI</div><button class="modal-close" onclick="closeModal('modal-member-detail')">✕</button></div>
+    <div class="tab-bar">
+      <button class="tab-btn" id="mdtab-0" onclick="showMdTab(0)">Profil</button>
+      <button class="tab-btn" id="mdtab-1" onclick="showMdTab(1)">Ölçümler</button>
+      <button class="tab-btn" id="mdtab-2" onclick="showMdTab(2)">Program</button>
+    </div>
+    <div class="tab-pane" id="mdpane-0"><div id="mdp-profile"></div></div>
+    <div class="tab-pane" id="mdpane-1"><div id="mdp-measurements"></div></div>
+    <div class="tab-pane" id="mdpane-2"><div id="mdp-program"></div></div>
+  </div>
+</div>
+
+<script>
+// === STATE ===
+let currentUser = null;
+let allUsers = [];
+let currentWeekOffset = 0;
+let currentProgram = null;
+let chartFilterMode = 'all';
+let detailMemberIdx = -1;
+
+// === STORAGE ===
+const store = {
+  get: k => { try { const v=localStorage.getItem(k); return v?JSON.parse(v):null; } catch(e){return null;} },
+  set: (k,v) => { try { localStorage.setItem(k,JSON.stringify(v)); } catch(e){} }
+};
+function loadUsers() { return store.get('ft_users')||[]; }
+function saveUsers(u) { store.set('ft_users',u); }
+function loadCurrentUser() { return store.get('ft_current'); }
+
+// === SAYFA GEÇİŞLERİ ===
+function goPage(p) {
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  if(p==='app') {
+    document.getElementById('app-shell').classList.add('active');
+    loadDashboard();
+    updateSidebarUser();
+    showSection('dashboard');
+  } else if(p==='auth') {
+    document.getElementById('page-auth').classList.add('active');
+    authTab('login');
+  } else {
+    document.getElementById('page-landing').classList.add('active');
+  }
+}
+
+function showSection(s) {
+  ['dashboard','bmi','weekly','members'].forEach(id=>{
+    const el=document.getElementById('sec-'+id);
+    if(el) el.style.display = id===s ? 'block':'none';
+    const nav=document.getElementById('nav-'+id);
+    if(nav) nav.classList.toggle('active', id===s);
+  });
+  if(s==='weekly') checkBmiForWeekly();
+  if(s==='members') loadMembers();
+  if(s==='dashboard') loadDashboard();
+}
+
+function updateSidebarUser() {
+  const u=loadCurrentUser();
+  if(!u) return;
+  document.getElementById('sb-name').textContent=u.name+' '+(u.surname||'');
+  document.getElementById('sb-email').textContent=u.email;
+  const av=document.getElementById('sb-av');
+  av.textContent=(u.name||'?')[0].toUpperCase();
+  av.classList.remove('empty');
+  av.style.background='var(--accent)';
+  av.style.color='#07070d';
+}
+
+// === AUTH ===
+function authTab(t) {
+  ['register','login'].forEach(id=>{
+    document.getElementById('auth-'+id).classList.toggle('active', id===t);
+    document.getElementById('tab-'+(id==='register'?'reg':'log')+'-btn').classList.toggle('active', id===t);
+  });
+}
+
+function togglePw(id) {
+  const i=document.getElementById(id);
+  i.type = i.type==='password'?'text':'password';
+}
+
+function doRegister() {
+  const name=document.getElementById('r-name').value.trim();
+  const surname=document.getElementById('r-surname').value.trim();
+  const email=document.getElementById('r-email').value.trim();
+  const pw=document.getElementById('r-pw').value;
+  const height=parseInt(document.getElementById('r-height').value);
+  const weight=parseInt(document.getElementById('r-weight').value);
+  const age=parseInt(document.getElementById('r-age').value)||30;
+  const gender=document.getElementById('r-gender').value;
+  const goal=document.getElementById('r-goal').value;
+  const terms=document.getElementById('r-terms').checked;
+  if(!name||!email||!pw||!height||!weight){showToast('Zorunlu alanları doldurun','error');return;}
+  if(pw.length<6){showMsg('r-pw-msg','En az 6 karakter','err');return;}
+  if(!terms){showToast('Şartları kabul edin','error');return;}
+  const users=loadUsers();
+  if(users.find(u=>u.email===email)){showMsg('r-email-msg','Bu e-posta zaten kayıtlı','err');return;}
+  const user={id:Date.now(),name,surname,email,password:pw,height,weight,age,gender,goal,level:'intermediate',createdAt:new Date().toISOString(),measurements:[]};
+  users.push(user);
+  saveUsers(users);
+  store.set('ft_current',user);
+  currentUser=user; allUsers=users;
+  showToast('Hesap oluşturuldu! Hoşgeldin '+name+' 🎉','success');
+  setTimeout(()=>goPage('app'),1000);
+}
+
+function doLogin() {
+  const email=document.getElementById('l-email').value.trim();
+  const pw=document.getElementById('l-pw').value;
+  const users=loadUsers();
+  const user=users.find(u=>u.email===email&&u.password===pw);
+  if(!user){showMsg('l-msg','E-posta veya şifre hatalı','err');return;}
+  store.set('ft_current',user);
+  currentUser=user; allUsers=users;
+  showToast('Hoşgeldin, '+user.name+'!','success');
+  setTimeout(()=>goPage('app'),800);
+}
+
+function doLogout() {
+  localStorage.removeItem('ft_current');
+  currentUser=null;
+  goPage('landing');
+}
+
+// === DASHBOARD ===
+function loadDashboard() {
+  currentUser=loadCurrentUser();
+  allUsers=loadUsers();
+  if(!currentUser) return;
+  document.getElementById('dash-welcome').textContent='HOŞGELDİN, '+currentUser.name.toUpperCase();
+  document.getElementById('dash-date').textContent=new Date().toLocaleDateString('tr-TR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const h=currentUser.height/100;
+  const bmi=(currentUser.weight/(h*h)).toFixed(1);
+  document.getElementById('d-bmi').textContent=bmi;
+  document.getElementById('d-bmi-cat').textContent=getBmiCat(bmi).label;
+  document.getElementById('d-weight').textContent=currentUser.weight;
+  const ms=currentUser.measurements||[];
+  document.getElementById('d-measurements').textContent=ms.length;
+  document.getElementById('d-members').textContent=allUsers.length;
+  const bmiPct=getBmiGoalPct(parseFloat(bmi));
+  setGoalBar('bmi',bmiPct,bmiPct+'%');
+  const msPct=Math.min(Math.round((ms.length/4)*100),100);
+  setGoalBar('ms',msPct,msPct+'%');
+  const profFields=[currentUser.height,currentUser.weight,currentUser.age,currentUser.goal].filter(Boolean).length;
+  setGoalBar('prof',Math.round((profFields/4)*100),Math.round((profFields/4)*100)+'%');
+  if(ms.length>0) {
+    document.getElementById('log-tbody').innerHTML=ms.slice().reverse().slice(0,8).map(m=>`<tr><td>${m.date}</td><td>${m.weight} kg</td><td class="td-accent">${m.bmi}</td><td style="color:var(--muted);font-size:.75rem">${m.note||'—'}</td></tr>`).join('');
+  }
+  document.getElementById('log-height').value=currentUser.height||'';
+  renderDashChart(ms);
+  const feed=[];
+  if(ms.length>0){const lm=ms[ms.length-1];feed.push({icon:'📊',bg:'var(--accent-dim)',title:'BMI ölçümü kaydedildi',sub:'BMI: '+lm.bmi+' — '+lm.date});}
+  if(feed.length>0){document.getElementById('activity-feed').innerHTML=feed.map(f=>`<div class="act-item"><div class="act-icon-wrap" style="background:${f.bg}">${f.icon}</div><div class="act-txt"><div class="at-title">${f.title}</div><div class="at-sub">${f.sub}</div></div></div>`).join('');}
+}
+
+function setGoalBar(id,pct,label) {
+  document.getElementById('gp-'+id).textContent=label;
+  setTimeout(()=>document.getElementById('gb-'+id).style.width=pct+'%',100);
+}
+
+function getBmiGoalPct(bmi) {
+  if(bmi>=18.5&&bmi<25) return 100;
+  if(bmi<18.5) return Math.round((bmi/18.5)*100);
+  return Math.round(Math.max(0,100-(bmi-25)*8));
+}
+
+function chartFilter(mode) {
+  chartFilterMode=mode;
+  document.querySelectorAll('.active-filter').forEach(b=>b.classList.remove('active-filter'));
+  document.getElementById('chart-filter-'+mode).classList.add('active-filter');
+  currentUser=loadCurrentUser();
+  if(currentUser) renderDashChart(currentUser.measurements||[]);
+}
+
+function renderDashChart(measurements) {
+  const canvas=document.getElementById('dash-chart');
+  const emptyMsg=document.getElementById('chart-empty-msg');
+  let data=measurements;
+  if(chartFilterMode==='30'){const d=new Date();d.setDate(d.getDate()-30);data=measurements.filter(m=>{const md=m.date.split('/').reverse().join('-');return new Date(md)>=d;});}
+  if(!data||data.length<2){canvas.style.display='none';emptyMsg.style.display='block';return;}
+  canvas.style.display='block';emptyMsg.style.display='none';
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.offsetWidth||480;const H=190;
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  canvas.style.width=W+'px';canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,H);
+  const d=data.slice(-12);
+  const bmis=d.map(m=>parseFloat(m.bmi));
+  const minV=Math.min(...bmis)-2;const maxV=Math.max(...bmis)+2;
+  const pL=44,pR=16,pT=16,pB=28;
+  const cW=W-pL-pR;const cH=H-pT-pB;
+  ctx.strokeStyle='rgba(37,37,53,.8)';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const y=pT+(cH/4)*i;ctx.beginPath();ctx.moveTo(pL,y);ctx.lineTo(pL+cW,y);ctx.stroke();const v=maxV-((maxV-minV)/4)*i;ctx.fillStyle='rgba(90,90,120,.7)';ctx.font='9px DM Sans';ctx.textAlign='right';ctx.fillText(v.toFixed(1),pL-5,y+3);}
+  const nT=pT+cH*(1-(24.9-minV)/(maxV-minV));const nB=pT+cH*(1-(18.5-minV)/(maxV-minV));
+  ctx.fillStyle='rgba(184,240,64,.05)';ctx.fillRect(pL,nT,cW,nB-nT);
+  const pts=d.map((m,i)=>({x:pL+(i/(d.length-1))*cW,y:pT+cH*(1-(parseFloat(m.bmi)-minV)/(maxV-minV))}));
+  ctx.beginPath();ctx.moveTo(pts[0].x,pT+cH);pts.forEach(p=>ctx.lineTo(p.x,p.y));ctx.lineTo(pts[pts.length-1].x,pT+cH);ctx.closePath();ctx.fillStyle='rgba(184,240,64,.06)';ctx.fill();
+  ctx.beginPath();pts.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));ctx.strokeStyle='rgba(184,240,64,.85)';ctx.lineWidth=2;ctx.stroke();
+  pts.forEach((p,i)=>{ctx.beginPath();ctx.arc(p.x,p.y,3.5,0,Math.PI*2);ctx.fillStyle='#b8f040';ctx.fill();ctx.fillStyle='rgba(90,90,120,.8)';ctx.font='8px DM Sans';ctx.textAlign='center';ctx.fillText(d[i].date.slice(0,5),p.x,pT+cH+14);});
+}
+
+function addMeasurement() {
+  if(!currentUser){showToast('Giriş yapın','error');return;}
+  const weight=parseFloat(document.getElementById('log-weight').value);
+  const height=parseFloat(document.getElementById('log-height').value)||currentUser.height;
+  const note=document.getElementById('log-note').value.trim();
+  if(!weight||weight<30){showToast('Geçerli kilo girin','error');return;}
+  const bmi=(weight/((height/100)**2)).toFixed(1);
+  const newMs={date:new Date().toLocaleDateString('tr-TR'),weight,height,bmi,note};
+  const users=loadUsers();
+  const idx=users.findIndex(u=>u.id===currentUser.id);
+  if(idx>-1){if(!users[idx].measurements)users[idx].measurements=[];users[idx].measurements.push(newMs);users[idx].weight=weight;saveUsers(users);store.set('ft_current',users[idx]);currentUser=users[idx];}
+  showToast('Ölçüm kaydedildi! BMI: '+bmi,'success');
+  document.getElementById('log-weight').value='';document.getElementById('log-note').value='';
+  loadDashboard();
+}
+
+// === BMI ===
+function bmiSlider(t) {
+  document.getElementById('bmi-'+t+'-val').textContent=document.getElementById('bmi-'+t).value;
+}
+
+function getBmiCat(bmi) {
+  bmi=parseFloat(bmi);
+  if(bmi<18.5) return{label:'Zayıf',color:'#40c8f0',advice:'Kilonuz ideal aralığın altında. Kalori alımınızı artırarak ve kas geliştirici egzersizler yaparak sağlıklı kilo almayı hedefleyin.',status:'Yetersiz Kilo',key:'under'};
+  if(bmi<25) return{label:'Normal ✓',color:'#b8f040',advice:'Tebrikler! Kilonuz ideal aralıkta. Düzenli egzersiz ve dengeli beslenme ile bu formu koruyun.',status:'İdeal Kilo',key:'normal'};
+  if(bmi<30) return{label:'Kilolu',color:'#f0c040',advice:'Kilonuz normal aralığın biraz üzerinde. Haftada 3-4 gün kardiyo ve beslenme düzenlemesi önerilir.',status:'Fazla Kilo',key:'over'};
+  return{label:'Obez',color:'#f05050',advice:'Sağlık riskleri açısından dikkat edilmesi gereken bir aralık. Bir uzman eşliğinde program oluşturun.',status:'Obezite',key:'obese'};
+}
+
+function calcBMI() {
+  const h=parseInt(document.getElementById('bmi-h').value);
+  const w=parseInt(document.getElementById('bmi-w').value);
+  const age=parseInt(document.getElementById('bmi-age').value)||30;
+  const gender=document.getElementById('bmi-gender').value;
+  const hM=h/100;const bmi=w/(hM*hM);const bmiR=Math.round(bmi*10)/10;
+  const cat=getBmiCat(bmiR);
+  const base=gender==='male'?50+2.3*((h-152.4)/2.54):45.5+2.3*((h-152.4)/2.54);
+  const iMin=Math.max(30,Math.round(base*.9));const iMax=Math.round(base*1.1);
+  const diff=w-Math.round((iMin+iMax)/2);
+  const diffTxt=diff>0?'+'+diff+' kg fazla':diff<0?diff+' kg eksik':'İdeal!';
+  let bmr=gender==='male'?10*w+6.25*h-5*age+5:10*w+6.25*h-5*age-161;
+  const tdee=Math.round(bmr*1.55);
+  const gaugeP=Math.min(Math.max((bmiR-10)/30*100,0),100);
+  document.getElementById('bmi-res-num').textContent=bmiR;
+  document.getElementById('bmi-res-num').style.color=cat.color;
+  document.getElementById('bmi-res-badge').textContent=cat.label;
+  document.getElementById('bmi-res-badge').style.cssText=`background:${cat.color}22;color:${cat.color};border:1px solid ${cat.color}44`;
+  setTimeout(()=>document.getElementById('bmi-needle').style.left=gaugeP+'%',50);
+  document.getElementById('bmi-ideal').textContent=iMin+'–'+iMax+' kg';
+  document.getElementById('bmi-diff').textContent=diffTxt;
+  document.getElementById('bmi-status').textContent=cat.status;
+  document.getElementById('bmi-kcal').textContent=tdee+' kcal';
+  document.getElementById('bmi-advice-txt').textContent=cat.advice;
+  document.getElementById('bmi-empty').style.display='none';
+  document.getElementById('bmi-result-body').classList.add('show');
+  store.set('ft_bmi_temp',{bmi:bmiR,h,w,age,gender,cat:cat.key});
+}
+
+function saveBMIResult() {
+  if(!currentUser){showToast('Giriş yapın','error');return;}
+  const tmp=store.get('ft_bmi_temp');if(!tmp){showToast('Önce hesaplayın','error');return;}
+  const ms={date:new Date().toLocaleDateString('tr-TR'),weight:tmp.w,height:tmp.h,bmi:tmp.bmi,note:'BMI sayfasından kaydedildi'};
+  const users=loadUsers();const idx=users.findIndex(u=>u.id===currentUser.id);
+  if(idx>-1){if(!users[idx].measurements)users[idx].measurements=[];users[idx].measurements.push(ms);users[idx].weight=tmp.w;saveUsers(users);store.set('ft_current',users[idx]);currentUser=users[idx];}
+  showToast('Kaydedildi! BMI: '+tmp.bmi,'success');
+}
+
+function checkBmiForWeekly() {
+  const tmp=store.get('ft_bmi_temp');
+  if(tmp) document.getElementById('ps-bmi').value=tmp.bmi;
+  else if(currentUser){const h=currentUser.height/100;const b=(currentUser.weight/(h*h)).toFixed(1);document.getElementById('ps-bmi').value=b;}
+}
+
+// === HAFTALIK PROGRAM - Her gün bir kas grubu ===
+// Her egzersiz için: n=isim, s=set, r=tekrar/süre, d=açıklama, m=kas grubu
+const EX = {
+  // PAZARTESİ - GÖĞÜS
+  chest: {
+    beginner: [
+      {n:'Şınav',s:'3',r:'10-12',d:'Omuz genişliğinde el tutuşu, göğse kadar inin',m:'Göğüs'},
+      {n:'Geniş Tutuşlu Şınav',s:'3',r:'8-10',d:'Ellerinizi geniş açın, üst göğsü çalıştırır',m:'Üst Göğüs'},
+      {n:'Dumbbell Göğüs Flye (Zeminde)',s:'3',r:'12',d:'Kollar yanlara açılır, göğüs gerilir',m:'Göğüs İç Kısmı'},
+      {n:'İnkline Şınav (Sandalye)',s:'3',r:'10',d:'Ayakları yüksekte şınav, alt göğüs odaklı',m:'Alt Göğüs'},
+      {n:'Diamond Şınav',s:'2',r:'8',d:'Ellerinizi yakın tutun, triseps ve göğüs',m:'Göğüs & Triseps'}
+    ],
+    intermediate: [
+      {n:'Bench Press',s:'4',r:'8-10',d:'Göğüs ortasına indirin, kontrollü kaldırın',m:'Göğüs'},
+      {n:'İnkline Dumbbell Press',s:'3',r:'10',d:'45° açıyla üst göğüs odaklı baskı',m:'Üst Göğüs'},
+      {n:'Kablo Flye',s:'3',r:'12',d:'Göğsün ortasında çapraz hareket',m:'Göğüs İç Kısmı'},
+      {n:'Dips (Göğüs)',s:'3',r:'8-10',d:'Öne eğilerek alt göğüs ve triseps',m:'Alt Göğüs'},
+      {n:'Decline Bench Press',s:'3',r:'10',d:'Aşağı eğimli bankta alt göğüs',m:'Alt Göğüs'},
+      {n:'Pec Deck',s:'3',r:'12',d:'Makine ile göğüs kaslarını izole edin',m:'Göğüs İzolasyon'}
+    ],
+    advanced: [
+      {n:'Ağır Bench Press',s:'5',r:'5',d:'Maksimum güç gelişimi için ağır ağırlık',m:'Göğüs'},
+      {n:'İnkline Barbell Press',s:'4',r:'6-8',d:'Üst göğüs kas kütlesi için',m:'Üst Göğüs'},
+      {n:'Weighted Dips',s:'4',r:'6-8',d:'Kemer ile ek ağırlık ekle',m:'Alt Göğüs & Triseps'},
+      {n:'Dumbbell Pullover',s:'3',r:'12',d:'Göğüs ve lat kaslarını gerer',m:'Göğüs & Sırt'},
+      {n:'Kablo Crossover',s:'4',r:'12',d:'Farklı açılardan göğüs izolasyonu',m:'Göğüs İzolasyon'},
+      {n:'Yüksek Tekrarlı Şınav',s:'3',r:'max',d:'Pompaj için yüksek tekrar',m:'Göğüs Detay'}
+    ]
+  },
+  // SALI - SIRT
+  back: {
+    beginner: [
+      {n:'Dumbbell Row',s:'3',r:'10',d:'Sırt düz, dirsek geriye çekin',m:'Orta Sırt'},
+      {n:'Superman',s:'3',r:'12',d:'Yüzüstü yatarak kollar ve bacakları kaldırın',m:'Alt Sırt'},
+      {n:'Lat Pulldown (Hafif)',s:'3',r:'12',d:'Geniş tutuşla çene altına çekin',m:'Lat Kası'},
+      {n:'Seated Row (Hafif)',s:'3',r:'12',d:'Göbek bölgesine çekme hareketi',m:'Orta Sırt'},
+      {n:'Good Morning',s:'3',r:'12',d:'Hafif ağırlıkla bel ve hamstring',m:'Alt Sırt & Hamstring'}
+    ],
+    intermediate: [
+      {n:'Pull-Up / Assisted',s:'3',r:'6-8',d:'Tam hareket aralığı, lat kaslarını hissedin',m:'Lat Kası'},
+      {n:'Bent-Over Barbell Row',s:'4',r:'8-10',d:'Sırt 45°, barı karına çekin',m:'Kalın Sırt'},
+      {n:'Lat Pulldown',s:'3',r:'10',d:'Geniş tutuş, göğse çekme',m:'Lat Kası'},
+      {n:'Seated Cable Row',s:'3',r:'12',d:'Kolları tamamen uzatın ve çekin',m:'Orta Sırt'},
+      {n:'Face Pull',s:'3',r:'15',d:'Omuz dışı rotasyon ve üst sırt',m:'Üst Sırt & Omuz'},
+      {n:'Deadlift (Orta)',s:'3',r:'8',d:'Tüm posterior zinciri çalıştırır',m:'Tam Sırt'}
+    ],
+    advanced: [
+      {n:'Weighted Pull-Up',s:'5',r:'5-6',d:'Kemer ağırlığıyla güç gelişimi',m:'Lat Kası'},
+      {n:'Ağır Deadlift',s:'4',r:'5',d:'Maksimum güç, doğru form zorunlu',m:'Tam Sırt & Trap'},
+      {n:'Pendlay Row',s:'4',r:'6',d:'Zemine koyarak explosive çekme',m:'Kalın Sırt'},
+      {n:'Single-Arm Row (Ağır)',s:'4',r:'8',d:'Her kolu ayrı çalıştır, tam gerilme',m:'Sırt İzolasyon'},
+      {n:'Deficit Deadlift',s:'3',r:'5',d:'Hareket açısını artırmak için platform',m:'Alt Sırt & Glutes'},
+      {n:'Cable Pullover',s:'3',r:'12',d:'Lat izolasyonu için kablo hareketi',m:'Lat İzolasyon'}
+    ]
+  },
+  // ÇARŞAMBA - BACAK
+  legs: {
+    beginner: [
+      {n:'Squat (Vücut Ağırlığı)',s:'3',r:'15',d:'Diz 90° bükerek oturun, sırt dik',m:'Quadriceps & Glutes'},
+      {n:'Lunge',s:'3',r:'10 (her bacak)',d:'İleri adım atarak diz bükün',m:'Quadriceps & Glutes'},
+      {n:'Glute Bridge',s:'3',r:'15',d:'Sırtüstü kalça kaldırma',m:'Glutes & Hamstring'},
+      {n:'Calf Raise',s:'3',r:'20',d:'Ayak parmak ucunda yükselme',m:'Baldır'},
+      {n:'Wall Sit',s:'3',r:'30 sn',d:'Duvara yaslanarak squat pozisyonu',m:'Quadriceps'}
+    ],
+    intermediate: [
+      {n:'Barbell Squat',s:'4',r:'8-10',d:'Tam hareket aralığı, sırt dik',m:'Quadriceps & Glutes'},
+      {n:'Romanian Deadlift',s:'4',r:'10',d:'Kalça engeli, hamstring gerilimi',m:'Hamstring & Glutes'},
+      {n:'Bulgarian Split Squat',s:'3',r:'10 (her bacak)',d:'Arka ayak bankta, ön diz 90°',m:'Quadriceps & Glutes'},
+      {n:'Leg Press',s:'3',r:'12',d:'Makinede kontrollü squat hareketi',m:'Quadriceps'},
+      {n:'Leg Curl',s:'3',r:'12',d:'Hamstring izolasyon egzersizi',m:'Hamstring'},
+      {n:'Donkey Calf Raise',s:'4',r:'20',d:'Baldır kaslarını izole eder',m:'Baldır'}
+    ],
+    advanced: [
+      {n:'Front Squat',s:'4',r:'6-8',d:'Bar önde, daha derin squat',m:'Quadriceps'},
+      {n:'Ağır Barbell Squat',s:'5',r:'5',d:'Maksimum güç gelişimi',m:'Tam Bacak'},
+      {n:'Ağır Romanian DL',s:'4',r:'6',d:'Hamstring ve glute kasları için',m:'Hamstring & Glutes'},
+      {n:'Hack Squat',s:'4',r:'8',d:'Makine ile alt quadriceps odak',m:'Alt Quadriceps'},
+      {n:'Walking Lunges (Ağırlıklı)',s:'4',r:'12 (her bacak)',d:'Dambılla yürüyüşlü lunge',m:'Glutes & Quadriceps'},
+      {n:'Standing Calf Raise (Ağır)',s:'5',r:'15',d:'Maksimum baldır gelişimi için',m:'Baldır'}
+    ]
+  },
+  // PERŞEMBE - OMUZ
+  shoulders: {
+    beginner: [
+      {n:'Dumbbell Shoulder Press',s:'3',r:'10',d:'Kollar 90°, yukarı iter, kontrollü iner',m:'Ön & Orta Omuz'},
+      {n:'Lateral Raise',s:'3',r:'12',d:'Kollar yanlara 90°e kadar kaldırma',m:'Orta Omuz'},
+      {n:'Front Raise',s:'3',r:'12',d:'Kollar öne 90°e kadar kaldırma',m:'Ön Omuz'},
+      {n:'Reverse Flye',s:'3',r:'12',d:'Öne eğilerek kollar yanlara açılır',m:'Arka Omuz'},
+      {n:'Shrug',s:'3',r:'15',d:'Omuzları yukarı kaldırma (trapez)',m:'Trapez'}
+    ],
+    intermediate: [
+      {n:'Barbell OHP',s:'4',r:'8',d:'Dikey omuz baskı, baş üstü iter',m:'Ön & Orta Omuz'},
+      {n:'Dumbbell Lateral Raise',s:'4',r:'12',d:'Kontrollü yavaş iniş, tam gerilme',m:'Orta Omuz'},
+      {n:'Arnold Press',s:'3',r:'10',d:'Dönerek baskı, tüm omuz boyutları',m:'Tüm Omuz'},
+      {n:'Cable Face Pull',s:'3',r:'15',d:'Arka omuz ve rotator cuff',m:'Arka Omuz'},
+      {n:'Upright Row',s:'3',r:'10',d:'Barı çene altına çekme hareketi',m:'Üst Trapez & Omuz'},
+      {n:'Reverse Pec Deck',s:'3',r:'12',d:'Makine ile arka omuz izolasyonu',m:'Arka Omuz İzolasyon'}
+    ],
+    advanced: [
+      {n:'Ağır Barbell OHP',s:'5',r:'5',d:'Maksimum omuz güç gelişimi',m:'Ön Omuz'},
+      {n:'Push Press',s:'4',r:'6',d:'Bacak yardımıyla explosive baskı',m:'Tüm Omuz'},
+      {n:'Ağır Lateral Raise (Drop Set)',s:'4',r:'12/10/8/max',d:'Her sette ağırlık düşürerek',m:'Orta Omuz'},
+      {n:'Rear Delt Row',s:'4',r:'12',d:'Arka omuz ve üst sırt birlikte',m:'Arka Omuz'},
+      {n:'Seated Dumbbell Press',s:'4',r:'8',d:'Destekli oturarak daha ağır çalışma',m:'Ön & Orta Omuz'},
+      {n:'Lu Raise',s:'3',r:'15',d:'Ön ve orta omuz kaslarını birleştirir',m:'Omuz Detay'}
+    ]
+  },
+  // CUMA - KOL (Biceps & Triceps)
+  arms: {
+    beginner: [
+      {n:'Dumbbell Biceps Curl',s:'3',r:'12',d:'Dirsek sabit, el bilek döndürmeden',m:'Biceps'},
+      {n:'Hammer Curl',s:'3',r:'10',d:'Başparmak yukarıda tutuş',m:'Biceps Brachii & Brachialis'},
+      {n:'Triceps Kickback',s:'3',r:'12',d:'Dirsek sabit, kolu geriye uzatın',m:'Triceps'},
+      {n:'Overhead Triceps Extension',s:'3',r:'12',d:'Dambıl baş arkasından kaldırma',m:'Triceps Uzun Kafası'},
+      {n:'Wrist Curl',s:'3',r:'15',d:'Ön kol güçlendirme',m:'Ön Kol'}
+    ],
+    intermediate: [
+      {n:'Barbell Curl',s:'4',r:'8-10',d:'Tam hareket aralığı, dirsek sabit',m:'Biceps'},
+      {n:'Skull Crusher',s:'4',r:'10',d:'Barı alnın önüne indirme',m:'Triceps'},
+      {n:'Cable Biceps Curl',s:'3',r:'12',d:'Sürekli gerilim için kablo',m:'Biceps İzolasyon'},
+      {n:'Triceps Pushdown',s:'3',r:'12',d:'Kablo ile triceps izolasyonu',m:'Triceps Lateral Kafası'},
+      {n:'Concentration Curl',s:'3',r:'12',d:'Dirsek dize dayalı, tam odak',m:'Biceps Zirvesi'},
+      {n:'Close-Grip Bench Press',s:'3',r:'10',d:'Geniş çalışma için çok eklemli',m:'Triceps & Göğüs'}
+    ],
+    advanced: [
+      {n:'Preacher Curl (Ağır)',s:'4',r:'8',d:'Dirsek hareketi önler, izolasyon',m:'Biceps Alt Kısmı'},
+      {n:'Ağır Skull Crusher',s:'4',r:'6-8',d:'Triceps kitlesi için ağır çalışma',m:'Triceps'},
+      {n:'Incline Dumbbell Curl',s:'4',r:'10',d:'Gerilimi artırmak için eğimli bank',m:'Biceps Uzun Kafası'},
+      {n:'Triceps Dips (Ağırlıklı)',s:'4',r:'8',d:'Kemer ağırlığıyla triceps gelişimi',m:'Tüm Triceps'},
+      {n:'Spider Curl',s:'3',r:'12',d:'Göğüs önde eğik curl',m:'Biceps Zirvesi'},
+      {n:'Overhead Cable Extension',s:'3',r:'12',d:'Triceps uzun kafası izolasyonu',m:'Triceps Uzun Kafası'}
+    ]
+  },
+  // CUMARTESİ - KARIN & CORE
+  core: {
+    beginner: [
+      {n:'Crunch',s:'3',r:'15',d:'Sırt üstü, eller ensede, yukarı kalk',m:'Üst Karın'},
+      {n:'Plank',s:'3',r:'30 sn',d:'Dirsek üzerinde düz vücut tutma',m:'Tüm Core'},
+      {n:'Leg Raise',s:'3',r:'12',d:'Sırt üstü bacakları 90°e kaldırma',m:'Alt Karın'},
+      {n:'Russian Twist',s:'3',r:'20',d:'Oturarak gövde dönüşleri',m:'Oblikler'},
+      {n:'Mountain Climber',s:'3',r:'20',d:'Plank pozisyonunda diz çekme',m:'Karın & Kalça'}
+    ],
+    intermediate: [
+      {n:'Hanging Leg Raise',s:'4',r:'12',d:'Bardan sarılarak bacakları 90°e kaldır',m:'Alt Karın'},
+      {n:'Cable Crunch',s:'4',r:'15',d:'Kablo ile karın izolasyonu',m:'Üst Karın'},
+      {n:'Plank Variasyonları',s:'4',r:'45 sn',d:'Yan plank, kaldırmalı plank',m:'Tüm Core'},
+      {n:'Ab Rollout',s:'3',r:'10',d:'Tekerlek veya barbell ile uzanma',m:'Tüm Karın'},
+      {n:'Woodchop (Kablo)',s:'3',r:'12',d:'Çapraz gövde rotasyonu',m:'Oblikler'},
+      {n:'Dragon Flag (Hazırlık)',s:'3',r:'5-8',d:'Bank üzerinde tam vücut kontrolü',m:'Tüm Core'}
+    ],
+    advanced: [
+      {n:'Dragon Flag',s:'4',r:'8',d:'Bank üzerinde kontrollü iniş-kalkış',m:'Tüm Core'},
+      {n:'Ağırlıklı Ab Rollout',s:'4',r:'12',d:'Mümkünse ağırlıklı varyasyon',m:'Tüm Karın'},
+      {n:'Toes to Bar',s:'4',r:'12',d:'Bardan sarılarak ayakları bara değdir',m:'Alt Karın & Hip Flexor'},
+      {n:'L-Sit Hold',s:'4',r:'15 sn',d:'Omuz genişliğinde destekte oturarak',m:'Karın & Quadriceps'},
+      {n:'Windshield Wiper',s:'3',r:'10 (her yön)',d:'Bardan bacakları yanlara sallama',m:'Oblikler & Alt Karın'},
+      {n:'Hanging Oblique Raise',s:'3',r:'12',d:'Bardan asılı yanal bacak kaldırma',m:'Oblikler'}
+    ]
+  },
+  // PAZAR - KARDIYO / DİNLENME
+  cardio: {
+    beginner: [
+      {n:'Yürüyüş',s:'1',r:'30 dk',d:'Saatte 5-6 km hafif tempo, nefes kontrolü',m:'Kardiyovasküler'},
+      {n:'Bisiklet',s:'1',r:'25 dk',d:'Orta dirençte tempolu pedal çevirme',m:'Bacak & Kalp'},
+      {n:'Dinamik Germe',s:'1',r:'10 dk',d:'Tüm kas gruplarını ısıtma',m:'Esneklik'}
+    ],
+    intermediate: [
+      {n:'Koşu',s:'1',r:'30 dk',d:'8-10 km/s, aerobik bölge',m:'Kardiyovasküler'},
+      {n:'Atlamalı İp',s:'5',r:'2 dk',d:'60 sn dinlenme aralıklarıyla',m:'Koordinasyon & Kalp'},
+      {n:'Bisiklet Interval',s:'5',r:'1 dk hızlı / 2 dk yavaş',d:'LISS ve HIIT karışımı',m:'Kardiyo & Bacak'},
+      {n:'Esneme Rutin',s:'1',r:'15 dk',d:'Antrenman sonrası kas grupları',m:'Esneklik & Toparlanma'}
+    ],
+    advanced: [
+      {n:'Interval Koşu',s:'8',r:'400m + 90 sn dinlenme',d:'Maksimum aerobik kapasite',m:'Kardiyovasküler'},
+      {n:'Assault Bike Tabata',s:'8',r:'20 sn / 10 sn',d:'Tam güçte tabata protokolü',m:'Kardiyo & Metabolizma'},
+      {n:'Sled Push',s:'6',r:'30m',d:'İtme kızağı patlayıcı güç',m:'Bacak & Kalp'},
+      {n:'Box Jump',s:'4',r:'10',d:'Patlayıcı bacak gücü ve koordinasyon',m:'Bacak & Athletizm'}
+    ]
+  },
+  // DİNLENME (esneklik günü)
+  flex: [
+    {n:'Dinamik Isınma',s:'1',r:'10 dk',d:'Sabah uyandırıcı eklem hareketleri',m:'Tüm Vücut'},
+    {n:'Yoga Güneş Selamlama',s:'1',r:'20 dk',d:'Nefes odaklı akış serisi',m:'Esneklik & Denge'},
+    {n:'Foam Rolling',s:'1',r:'15 dk',d:'Her kas grubuna 60 sn uygula',m:'Miyofasial Gevşeme'},
+    {n:'Statik Germe',s:'1',r:'15 dk',d:'Her pozisyon 30-45 sn, nefes verin',m:'Esneklik'}
+  ]
+};
+
+const DAY_NAMES = ['PAZARTESİ','SALI','ÇARŞAMBA','PERŞEMBE','CUMA','CUMARTESİ','PAZAR'];
+
+// Her hedef için günlük kas grubu planı
+const GOAL_PLANS = {
+  lose: [
+    {t:'chest',   l:'GÖĞÜS',     muscle:'Göğüs'},
+    {t:'back',    l:'SIRT',      muscle:'Sırt'},
+    {t:'cardio',  l:'KARDİYO',   muscle:'Kardiyo'},
+    {t:'legs',    l:'BACAK',     muscle:'Bacak'},
+    {t:'shoulders',l:'OMUZ',    muscle:'Omuz'},
+    {t:'core',    l:'KARIN',     muscle:'Core'},
+    {t:'flex',    l:'DİNLENME', muscle:'Esneklik'}
+  ],
+  maintain: [
+    {t:'chest',   l:'GÖĞÜS',     muscle:'Göğüs'},
+    {t:'back',    l:'SIRT',      muscle:'Sırt'},
+    {t:'legs',    l:'BACAK',     muscle:'Bacak'},
+    {t:'shoulders',l:'OMUZ',    muscle:'Omuz'},
+    {t:'arms',    l:'KOL',       muscle:'Biceps & Triceps'},
+    {t:'core',    l:'KARIN',     muscle:'Core'},
+    {t:'flex',    l:'DİNLENME', muscle:'Esneklik'}
+  ],
+  gain: [
+    {t:'chest',   l:'GÖĞÜS',     muscle:'Göğüs'},
+    {t:'back',    l:'SIRT',      muscle:'Sırt'},
+    {t:'legs',    l:'BACAK',     muscle:'Bacak'},
+    {t:'shoulders',l:'OMUZ',    muscle:'Omuz'},
+    {t:'arms',    l:'KOL',       muscle:'Biceps & Triceps'},
+    {t:'core',    l:'KARIN',     muscle:'Core'},
+    {t:'flex',    l:'DİNLENME', muscle:'Esneklik'}
+  ]
+};
+
+function generateProgram() {
+  const level = document.getElementById('ps-level').value;
+  const goal = document.getElementById('ps-goal').value;
+  const trainDays = parseInt(document.getElementById('ps-days').value);
+  const dur = parseInt(document.getElementById('ps-dur').value)||60;
+  const bmi = parseFloat(document.getElementById('ps-bmi').value)||22;
+  const templates = GOAL_PLANS[goal];
+
+  const program = templates.map((tmpl, i) => {
+    // Rest gün belirleme (son günler)
+    if(i >= trainDays) {
+      return {day:DAY_NAMES[i], type:'rest', label:'DİNLENME', muscle:'—', exercises:[], calories:0, duration:0};
+    }
+    // Flex günü her zaman son aktif gün
+    if(tmpl.t === 'flex') {
+      const pool = EX.flex;
+      return {day:DAY_NAMES[i], type:'flex', label:'ESNEME', muscle:'Esneklik', exercises:pool, calories:Math.round(dur*3), duration:dur};
+    }
+    const pool = EX[tmpl.t] ? (EX[tmpl.t][level] || EX[tmpl.t].intermediate) : EX.flex;
+    const kcalMult = {chest:7, back:7, legs:9, shoulders:6, arms:5, core:6, cardio:8, flex:3};
+    const cals = Math.round(dur*(kcalMult[tmpl.t]||7)*(bmi>27?1.1:1));
+    return {day:DAY_NAMES[i], type:tmpl.t, label:tmpl.l, muscle:tmpl.muscle, exercises:pool, calories:cals, duration:dur};
+  });
+
+  currentProgram = program;
+  renderWeekGrid(program);
+  const trainCount = program.filter(d=>d.type!=='rest').length;
+  const totalCal = program.reduce((a,d)=>a+d.calories,0);
+  const totalEx = program.reduce((a,d)=>a+d.exercises.length,0);
+  document.getElementById('week-stats-row').innerHTML=`
+    <div class="wstat"><div class="wstat-v">${trainCount}</div><div class="wstat-l">Antrenman</div></div>
+    <div class="wstat"><div class="wstat-v">${trainCount*dur}</div><div class="wstat-l">Süre (dk)</div></div>
+    <div class="wstat"><div class="wstat-v">${totalCal}</div><div class="wstat-l">Kalori</div></div>
+    <div class="wstat"><div class="wstat-v">${totalEx}</div><div class="wstat-l">Egzersiz</div></div>
+  `;
+}
+
+function renderWeekGrid(prog) {
+  const typeClass = {chest:'tt-strength', back:'tt-strength', legs:'tt-strength', shoulders:'tt-strength', arms:'tt-strength', core:'tt-hiit', cardio:'tt-cardio', flex:'tt-flex', rest:'tt-rest'};
+  document.getElementById('week-grid').innerHTML = prog.map((d,i) => `
+    <div class="day-card${d.type==='rest'?' rest':''}" onclick="showDayDetail(${i})">
+      <div class="day-head">
+        <span class="day-name">${d.day.slice(0,3)}</span>
+        <span class="day-type-tag ${typeClass[d.type]||'tt-rest'}">${d.label}</span>
+      </div>
+      <div class="day-body">
+        ${d.type!=='rest'&&d.muscle!=='—' ? `<span class="muscle-tag">💪 ${d.muscle}</span>` : ''}
+        ${d.exercises.length===0 ? '<div style="font-size:.72rem;color:var(--muted);padding:.35rem 0">Aktif dinlenme önerilir</div>' : ''}
+        ${d.exercises.slice(0,3).map(e=>`<div class="day-ex-item"><span class="day-ex-name">${e.n}</span><span class="day-ex-sets">${e.s}×${e.r}</span></div>`).join('')}
+        ${d.exercises.length>3 ? `<div style="font-size:.68rem;color:var(--muted);padding:.2rem 0">+${d.exercises.length-3} egzersiz daha</div>` : ''}
+      </div>
+      ${d.calories>0 ? `<div class="day-foot"><span class="day-kcal">~<span>${d.calories}</span> kcal</span></div>` : ''}
+    </div>`).join('');
+}
+
+function showDayDetail(idx) {
+  if(!currentProgram) return;
+  const d = currentProgram[idx];
+  document.getElementById('week-detail-title').textContent = d.day + ' — ' + d.label + (d.muscle!=='—'?' ('+d.muscle+')':'');
+  if(d.exercises.length===0) {
+    document.getElementById('week-detail-grid').innerHTML='<p style="color:var(--text2)">Bugün dinlenme günü. Hafif yürüyüş veya esneme önerilir.</p>';
+  } else {
+    document.getElementById('week-detail-grid').innerHTML = d.exercises.map(e=>`
+      <div class="ex-detail-card">
+        <div class="ex-dc-name">${e.n}</div>
+        <div class="ex-specs">
+          <span class="ex-spec-tag">${e.s} set</span>
+          <span class="ex-spec-tag">${e.r}</span>
+        </div>
+        <div class="ex-dc-desc">${e.d}</div>
+        ${e.m ? `<span class="ex-muscle-badge">💪 ${e.m}</span>` : ''}
+      </div>`).join('');
+  }
+  const panel = document.getElementById('week-detail-panel');
+  panel.classList.add('open');
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function closeWeekDetail() { document.getElementById('week-detail-panel').classList.remove('open'); }
+
+function changeWeek(d) { currentWeekOffset+=d; updateWeekRange(); }
+
+function updateWeekRange() {
+  const today=new Date();const mon=new Date(today);
+  mon.setDate(today.getDate()-today.getDay()+1+currentWeekOffset*7);
+  const sun=new Date(mon);sun.setDate(mon.getDate()+6);
+  const f=d=>d.toLocaleDateString('tr-TR',{day:'numeric',month:'short'});
+  document.getElementById('week-range-txt').textContent=f(mon)+' – '+f(sun);
+}
+
+// === MEMBERS ===
+const AV_COLORS=['#b8f040','#40c8f0','#f040a0','#f0c040','#a040f0','#40f0a0'];
+function getMemberBmi(m){return(m.weight/((m.height/100)**2)).toFixed(1);}
+function getMemberCat(bmi){
+  bmi=parseFloat(bmi);
+  if(bmi<18.5) return{label:'Zayıf',cls:'badge-under',key:'under'};
+  if(bmi<25) return{label:'Normal',cls:'badge-normal',key:'normal'};
+  if(bmi<30) return{label:'Kilolu',cls:'badge-over',key:'over'};
+  return{label:'Obez',cls:'badge-obese',key:'obese'};
+}
+
+function loadMembers() {
+  allUsers=loadUsers();
+  renderMemberGrid(allUsers);
+  document.getElementById('member-count-txt').textContent=allUsers.length+' üye kayıtlı';
+}
+
+function filterMembers() {
+  const q=document.getElementById('member-search').value.toLowerCase();
+  const cat=document.getElementById('member-filter-cat').value;
+  const sort=document.getElementById('member-sort').value;
+  let list=allUsers.filter(m=>{
+    const matchQ=(m.name+' '+m.surname+' '+m.email).toLowerCase().includes(q);
+    const bmi=parseFloat(getMemberBmi(m));
+    const mc=getMemberCat(bmi).key;
+    return matchQ&&(cat==='all'||mc===cat);
+  });
+  if(sort==='bmi') list.sort((a,b)=>parseFloat(getMemberBmi(a))-parseFloat(getMemberBmi(b)));
+  else list.sort((a,b)=>a.name.localeCompare(b.name));
+  renderMemberGrid(list);
+}
+
+function getGoalLabel(g){return g==='lose'?'Kilo Verme':g==='gain'?'Kas Kazanma':'Form Koruma';}
+
+function renderMemberGrid(list) {
+  const grid=document.getElementById('members-grid');
+  if(!list.length){grid.innerHTML='<div class="empty-state-card"><span class="es-emoji">👥</span><p>Üye bulunamadı.</p></div>';return;}
+  grid.innerHTML=list.map((m,i)=>{
+    const bmi=getMemberBmi(m);
+    const cat=getMemberCat(bmi);
+    const color=AV_COLORS[i%AV_COLORS.length];
+    const ms=(m.measurements||[]).length;
+    return`<div class="member-card" onclick="openMemberDetail(${allUsers.indexOf(m)})">
+      <div class="mc-head">
+        <div class="mc-av" style="background:${color}">${(m.name||'?')[0].toUpperCase()}</div>
+        <div class="mc-info"><h3>${m.name} ${m.surname}</h3><p>${m.email}</p></div>
+        <span class="mc-bmi-badge ${cat.cls}">${cat.label}</span>
+      </div>
+      <div class="mc-stats">
+        <div class="mc-stat"><span class="mc-stat-v">${bmi}</span><span class="mc-stat-l">BMI</span></div>
+        <div class="mc-stat"><span class="mc-stat-v">${m.weight}</span><span class="mc-stat-l">Kilo</span></div>
+        <div class="mc-stat"><span class="mc-stat-v">${ms}</span><span class="mc-stat-l">Ölçüm</span></div>
+      </div>
+      <div class="mc-foot">
+        <span class="mc-goal-tag">🎯 ${getGoalLabel(m.goal||'maintain')} · ${m.age||'—'} yaş</span>
+        <div class="mc-actions">
+          <button class="mc-act-btn" onclick="event.stopPropagation();quickProgram(${allUsers.indexOf(m)})" title="Program">📋</button>
+          <button class="mc-act-btn danger" onclick="event.stopPropagation();deleteMember(${allUsers.indexOf(m)})" title="Sil">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openAddMemberModal(){document.getElementById('modal-add-member').classList.add('open');}
+
+function saveMember() {
+  const name=document.getElementById('am-name').value.trim();
+  const surname=document.getElementById('am-surname').value.trim();
+  const email=document.getElementById('am-email').value.trim();
+  const h=parseInt(document.getElementById('am-h').value);
+  const w=parseInt(document.getElementById('am-w').value);
+  if(!name||!email||!h||!w){showToast('Zorunlu alanları doldurun','error');return;}
+  const m={id:Date.now(),name,surname,email,password:'fittrack123',
+    height:h,weight:w,age:parseInt(document.getElementById('am-age').value)||30,
+    gender:document.getElementById('am-gender').value,
+    goal:document.getElementById('am-goal').value,
+    level:document.getElementById('am-level').value,
+    note:document.getElementById('am-note').value,
+    createdAt:new Date().toISOString(),measurements:[]};
+  const users=loadUsers();users.push(m);saveUsers(users);allUsers=users;
+  renderMemberGrid(allUsers);
+  document.getElementById('member-count-txt').textContent=allUsers.length+' üye kayıtlı';
+  closeModal('modal-add-member');
+  ['am-name','am-surname','am-email','am-h','am-w','am-age','am-note'].forEach(id=>document.getElementById(id).value='');
+  showToast(name+' eklendi ✓','success');
+}
+
+function deleteMember(idx) {
+  if(!confirm('Üyeyi silmek istiyor musunuz?')) return;
+  const users=loadUsers();
+  const toRemove=allUsers[idx];
+  const ui=users.findIndex(u=>u.id===toRemove.id);
+  if(ui>-1) users.splice(ui,1);
+  saveUsers(users);allUsers=users;
+  renderMemberGrid(allUsers);
+  document.getElementById('member-count-txt').textContent=allUsers.length+' üye kayıtlı';
+  showToast('Üye silindi','success');
+}
+
+function openMemberDetail(idx) {
+  detailMemberIdx=idx;
+  const m=allUsers[idx];
+  document.getElementById('mdm-title').textContent=(m.name+' '+m.surname).toUpperCase();
+  const bmi=getMemberBmi(m);
+  const cat=getMemberCat(bmi);
+  document.getElementById('mdp-profile').innerHTML=`
+    <div class="profile-grid">
+      ${[['Ad Soyad',m.name+' '+m.surname],['E-Posta',m.email],['Boy',m.height+' cm'],['Kilo',m.weight+' kg'],['Yaş',(m.age||'—')+' yaş'],['Cinsiyet',m.gender==='male'?'Erkek':'Kadın'],['BMI',bmi],['Hedef',getGoalLabel(m.goal||'maintain')]].map(([l,v])=>`<div class="profile-item"><div class="pi-label">${l}</div><div class="pi-val">${v}</div></div>`).join('')}
+    </div>
+    ${m.note?`<div style="background:var(--accent-dim);border:1px solid rgba(184,240,64,.15);border-radius:8px;padding:.9rem;font-size:.83rem;color:var(--text2);margin-top:.75rem"><strong style="color:var(--accent)">Not:</strong> ${m.note}</div>`:''}
+  `;
+  const ms=m.measurements||[];
+  document.getElementById('mdp-measurements').innerHTML=ms.length===0?'<p style="color:var(--muted);padding:1rem">Kayıtlı ölçüm yok.</p>'
+    :`<div style="display:flex;flex-direction:column;gap:.5rem">${ms.slice().reverse().map(me=>`<div style="display:flex;justify-content:space-between;background:var(--surface);padding:.7rem .95rem;border-radius:7px"><span style="font-size:.8rem;color:var(--muted)">${me.date}</span><div style="display:flex;gap:1.5rem"><span style="font-size:.8rem">⚖ ${me.weight} kg</span><span style="font-size:.8rem;color:var(--accent)">BMI ${me.bmi}</span></div></div>`).join('')}</div>`;
+  const plans=GOAL_PLANS[m.goal||'maintain'];
+  const tc={chest:'tt-strength',back:'tt-strength',legs:'tt-strength',shoulders:'tt-strength',arms:'tt-strength',core:'tt-hiit',cardio:'tt-cardio',flex:'tt-flex',rest:'tt-rest'};
+  document.getElementById('mdp-program').innerHTML=`
+    <p style="color:var(--text2);font-size:.83rem;margin-bottom:1.1rem">${m.name} için <strong style="color:var(--accent)">${getGoalLabel(m.goal||'maintain')}</strong> programı</p>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:.45rem;margin-bottom:1.1rem">
+      ${['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'].map((d,i)=>`<div style="background:var(--surface);border-radius:7px;padding:.6rem .35rem;text-align:center"><div style="font-family:'Bebas Neue';font-size:.75rem;margin-bottom:.35rem">${d}</div><div class="day-type-tag ${tc[plans[i].t]||'tt-rest'}">${plans[i].l}</div></div>`).join('')}
+    </div>
+    <button class="btn btn-accent btn-sm" onclick="closeModal('modal-member-detail');showSection('weekly')">Detaylı Program →</button>
+  `;
+  document.getElementById('modal-member-detail').classList.add('open');
+  showMdTab(0);
+}
+
+function showMdTab(n) {
+  [0,1,2].forEach(i=>{
+    document.getElementById('mdtab-'+i).classList.toggle('active',i===n);
+    document.getElementById('mdpane-'+i).classList.toggle('active',i===n);
+  });
+}
+
+function quickProgram(idx){openMemberDetail(idx);setTimeout(()=>showMdTab(2),100);}
+
+// === MODALS ===
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});});
+
+// === TOAST ===
+function showToast(msg, type='success') {
+  const wrap=document.getElementById('toastWrap');
+  const t=document.createElement('div');
+  t.className='toast '+type;
+  t.innerHTML=`<span class="toast-icon">${type==='success'?'✅':'❌'}</span><span class="toast-msg">${msg}</span>`;
+  wrap.appendChild(t);
+  setTimeout(()=>t.classList.add('show'),20);
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),400);},3500);
+}
+
+// === HELPERS ===
+function showMsg(id,msg,cls){const el=document.getElementById(id);el.textContent=msg;el.className='field-msg '+cls;}
+function clearMsg(id){const el=document.getElementById(id);el.textContent='';el.className='field-msg';}
+
+// Badge stilleri
+const bss=document.createElement('style');
+bss.textContent=`.badge-under{background:rgba(64,200,240,.14);color:#40c8f0;}.badge-normal{background:rgba(184,240,64,.12);color:#b8f040;}.badge-over{background:rgba(240,192,64,.14);color:#f0c040;}.badge-obese{background:rgba(240,80,80,.12);color:#f05050;}`;
+document.head.appendChild(bss);
+
+// Sayaç animasyonu
+const counterObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const el=e.target;const target=parseInt(el.dataset.to);
+      let cur=0;const inc=target/60;
+      const t=setInterval(()=>{cur+=inc;if(cur>=target){el.textContent=target.toLocaleString('tr');clearInterval(t);}else{el.textContent=Math.floor(cur).toLocaleString('tr');}},20);
+      counterObs.unobserve(el);
+    }
+  });
+});
+document.querySelectorAll('.sbi-num[data-to]').forEach(el=>counterObs.observe(el));
+
+// İletişim formu
+function sendContact() {
+  const name=document.getElementById('ct-name').value.trim();
+  const email=document.getElementById('ct-email').value.trim();
+  const msg=document.getElementById('ct-message').value.trim();
+  if(!name||!email||!msg){showToast('Lütfen tüm alanları doldurun','error');return;}
+  showToast('Mesajınız alındı! En kısa sürede dönüş yapacağız 📩','success');
+  ['ct-name','ct-email','ct-subject','ct-message'].forEach(id=>document.getElementById(id).value='');
+}
+
+// INIT
+(function init(){
+  updateWeekRange();
+  const saved=loadCurrentUser();
+  if(saved){currentUser=saved;allUsers=loadUsers();}
+})();
+</script>
+</body>
+</html>
